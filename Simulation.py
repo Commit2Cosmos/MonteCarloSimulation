@@ -87,9 +87,7 @@ fig = plt.figure()
 plt.xlim(-simulation.box_size[0]/2 , simulation.box_size[0]/2)
 plt.ylim(-simulation.box_size[1]/2 , simulation.box_size[1]/2)
 
-posX = list(simulation.particles['positionX'])
-posY = list(simulation.particles['positionY'])
-graph, = plt.plot([],[], 'o')
+graph, = plt.plot([], [], 'o')
 
 
 def initial():
@@ -104,7 +102,6 @@ def render(i):
     posY = list(simulation.particles['positionY'])
     graph.set_data(posX, posY)
     return graph,
-
 
 
 anim = FuncAnimation(fig, render, init_func=initial, interval=1/10, frames=range(1200), blit = True, repeat = False)
