@@ -10,7 +10,7 @@ class Simulation():
 
     box_size = [20,20]
 
-    def __init__(self, dt = 1E-2, N = 10):
+    def __init__(self, dt = 1E-2, N = 1):
         self.dt, self.N = dt, N
         self.particles = pd.DataFrame(np.array([np.zeros(5)]*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass'], dtype = float)
         # name property is a unique id of a particle
