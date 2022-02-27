@@ -53,3 +53,4 @@ If non-point particles are 'touching'?
 What does 'magic value' represent and how to calculate it?
 How to implement Runge-Kutta & linear multistep methods (or any other advanced ones e.g. multiderivative, 2nd order ODEs)?
 Verlet method?
+How to make the same as if there are N_A particles??
