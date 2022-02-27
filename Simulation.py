@@ -71,7 +71,9 @@ class Simulation():
     
 
     def calculateTemperture(self):
-        
+
+        for particle in self.particles:
+            
 
 
 
