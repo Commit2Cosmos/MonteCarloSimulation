@@ -9,6 +9,7 @@ from Particles import Particle
 class Simulation():
 
     box_size = [20,20]
+    time = 0
 
     def __init__(self, dt = 1E-2, N = 10):
         self.dt, self.N = dt, N
@@ -61,13 +62,16 @@ class Simulation():
     #     return [particle.velocity for particle in self.particles]
 
 
-
     # regulates which method was selected
     def advance(self, n):
         if n == 1:
             self.eulerCromer()
         # if n == 2:
         #     self.rungeKutta()
+    
+
+    def calculateTemperture(self):
+        
 
 
 
