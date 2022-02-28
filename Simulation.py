@@ -6,7 +6,6 @@ from matplotlib.animation import FuncAnimation
 import pandas as pd
 from Particles import Particle
 
-# Introduce id instead of name property??
 
 class Simulation():
 
