@@ -46,11 +46,38 @@ MB distribution
 Pressure ?
 
 
+Technical:
+
+Add testing functions
+Include all packages needed
+
+
+
 
 Qs:
 
-If non-point particles are 'touching'?
-What does 'magic value' represent and how to calculate it?
-How to implement Runge-Kutta & linear multistep methods (or any other advanced ones e.g. multiderivative, 2nd order ODEs)?
-Verlet method?
-How to make the same as if there are N_A particles??
+How to store data:
+grid 
+
+
+Separate file for testing (pytest/unit test)
+
+
+Change color w speed or number of collisions (use scatter!!!!!)
+
+Switch units to mean free path!!!!!!! (check dimensions as a test)
+
+
+Provide diagnostics at the start of the simulation
+
+
+
+
+Introduce seeds for reproducibility
+Use config files to use specific funcs
+\sigma * c_r is P(collision per time per number density)
+* number density * time => P(collision)
+
+F_N = statistical weight (# of real per simulated) (collection/blob)
+
+n (number density) = N / V * F_N 

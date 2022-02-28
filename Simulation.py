@@ -6,6 +6,7 @@ from matplotlib.animation import FuncAnimation
 import pandas as pd
 from Particles import Particle
 
+# Introduce id instead of name property??
 
 class Simulation():
 
@@ -20,7 +21,7 @@ class Simulation():
     R = 1
 
 
-    def __init__(self, dt = 1E-2, N = 10):
+    def __init__(self, dt = 1E-2, N = 5):
         self.dt, self.N = dt, N
         self.particles = pd.DataFrame(np.array([np.zeros(6)]*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass', 'radius'], dtype = float)
         # name property is a unique id of a particle
@@ -93,6 +94,25 @@ class Simulation():
                 para.velocityY *= -1
 
 
+    # # ignores > 2 particles collisions
+    # def particleCollision(self):
+    #     collided = []
+    #     for i in range(self.N):
+    #         para1 = self.particles.iloc[i]
+
+    #         for j in range(self.N):
+    #             para2 = self.particles.iloc[j]
+                
+    #             # check so particle doesn't collide with itself
+    #             if (i == j):
+    #                 continue
+
+    #             # checks if particle already collided in current iteration
+    #             if para1.name in collided or para2.name in collided:
+    #                 continue
+                
+                
+
     
 
 
@@ -124,10 +144,14 @@ class Simulation():
 
 # initialise the object
 simulation = Simulation()
+
 # assign random starting positions & velocities
 simulation.randomiseInitial()
+
 # particles properties
 print(simulation.particles)
+
+# system's temperature
 # print(simulation.calculateTemp())
 
 
@@ -158,6 +182,6 @@ def render(i):
 
 
 
-anim = FuncAnimation(fig, render, init_func=initial, interval=1/10, frames=range(1200), blit = True, repeat = False)
+anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(1200), blit = True, repeat = False)
 
 plt.show()
