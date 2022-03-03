@@ -9,6 +9,7 @@ import pandas as pd
 from Particles import Particle
 
 
+
 class Simulation():
 
     box_size = [20,20]
