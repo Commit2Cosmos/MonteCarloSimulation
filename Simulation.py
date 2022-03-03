@@ -1,7 +1,7 @@
 import sys
 sys.dont_write_bytecode = True
 import numpy as np
-# import math
+np.random.seed(2)
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -22,7 +22,7 @@ class Simulation():
     R = 1
 
 
-    def __init__(self, dt = 1E-2, N = 5):
+    def __init__(self, dt = 1E-3, N = 20):
         self.dt, self.N = dt, N
         self.particles = pd.DataFrame(np.array([np.zeros(6)]*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass', 'radius'], dtype = float)
         # name property is a unique id of a particle
@@ -33,15 +33,34 @@ class Simulation():
         for i in range(self.N):
             para = self.particles.iloc[i]
             para.positionX, para.positionY = 2 * self.xLim * (np.random.rand(1,2)[0] - 0.5)
-            para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5)
+            para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5) * 30
             para.mass = 1
             para.radius = 0.25
+
+
+    # collision detection test (head on)
+    def setConditions(self):
+        para1 = self.particles.iloc[0]
+        para2 = self.particles.iloc[1]
+
+        para1.positionX, para1.positionY = -2, 0
+        para1.velocityX, para1.velocityY = 1, 0
+        para1.mass = 1
+        para1.radius = 0.25
+
+        para2.positionX, para2.positionY = 2, 0
+        para2.velocityX, para2.velocityY = -1, 0
+        para2.mass = 1
+        para2.radius = 0.25
+
+
 
 
     # updates components of position and velocity using Euler-Cromer method
 
     def eulerCromer(self):
         self.wallCollision()
+        self.particleCollision()
         for i in range(self.N):
             para = self.particles.iloc[i]
             para.positionX += para.velocityX * self.dt
@@ -61,26 +80,39 @@ class Simulation():
 
     # Classical two particle collision (ignores > 2 particles collisions in one timestep)
 
+    def particleCollision(self):
+        collided = []
+        for i in range(self.N):
+            para1 = self.particles.iloc[i]
 
-    # def particleCollision(self):
-    #     collided = []
-    #     for i in range(self.N):
-    #         para1 = self.particles.iloc[i]
+            for j in range(self.N):
+                para2 = self.particles.iloc[j]
 
-    #         for j in range(self.N):
-    #             para2 = self.particles.iloc[j]
+                # check so particle doesn't collide with itself & if particle already collided in current iteration
+                if ((i == j) or (para1.name in collided or para2.name in collided)):
+                    continue
                 
-    #             # check so particle doesn't collide with itself
-    #             if (i == j):
-    #                 continue
+                rx = para1.positionX - para2.positionX
+                ry = para1.positionY - para2.positionY
 
-    #             # checks if particle already collided in current iteration
-    #             if para1.name in collided or para2.name in collided:
-    #                 continue
-                
-                
+                # Equations for angle-free representation of an elastic collision were taken from Wikipedia
+                if np.dot((rx,ry),(rx,ry)) <= (para1.radius + para2.radius)**2:
+                    vx = para1.velocityX - para2.velocityX
+                    vy = para1.velocityY - para2.velocityY
 
-    
+                    inner = np.dot((vx, vy),(rx,ry))
+                    mag = rx**2 + ry**2
+                    m = para1.mass + para2.mass
+                    mmag = (m * mag)
+
+                    
+                    para1.velocityX -= 2*para2.mass*inner*rx/mmag
+                    para1.velocityY -= 2*para2.mass*inner*ry/mmag
+                    para2.velocityX += 2*para1.mass*inner*rx/mmag
+                    para2.velocityY += 2*para1.mass*inner*ry/mmag
+
+                    collided.append(para1.name)
+                    collided.append(para2.name)
 
 
 
@@ -115,6 +147,8 @@ simulation = Simulation()
 
 # assign random starting positions & velocities
 simulation.randomiseInitial()
+# simulation.setConditions()
+
 
 # particles properties
 print(simulation.particles)
@@ -131,7 +165,8 @@ plt.ylim(-simulation.yLim , simulation.yLim)
 
 posX = list(simulation.particles['positionX'])
 posY = list(simulation.particles['positionY'])
-graph, = plt.plot([],[], 'o', markersize=5)
+graph, = plt.plot([],[],'o', markersize=5)
+# markersize=5
 
 
 def initial():
@@ -149,6 +184,6 @@ def render(i):
 
 
 
-anim = FuncAnimation(fig, render, init_func=initial, interval=1/10, frames=range(1200), blit = True, repeat = False)
+anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(1200), blit = True, repeat = False)
 
 plt.show()
