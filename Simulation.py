@@ -1,82 +1,124 @@
 import numpy as np
+# import math
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import pandas as pd
 from Particles import Particle
+import sys
+sys.dont_write_bytecode = True
 
 
 class Simulation():
 
     box_size = [20,20]
 
-    def __init__(self, dt = 1E-2, N = 1):
+    xLim = box_size[0]/2
+    yLim = box_size[1]/2
+
+    time = 0
+    
+    # CONSTANTS
+    R = 1
+
+
+    def __init__(self, dt = 1E-2, N = 5):
         self.dt, self.N = dt, N
-        self.particles = pd.DataFrame(np.array([np.zeros(5)]*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass'], dtype = float)
+        self.particles = pd.DataFrame(np.array([np.zeros(6)]*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass', 'radius'], dtype = float)
         # name property is a unique id of a particle
 
 
     # RANDOMNESS
     def randomiseInitial(self):
         for i in range(self.N):
-            self.particles.iloc[i].positionX, self.particles.iloc[i].positionY = self.box_size[0] * (np.random.rand(1,2)[0] - 0.5)
-            self.particles.iloc[i].velocityX, self.particles.iloc[i].velocityY = 1/2*self.box_size[0] * (np.random.rand(1,2)[0] - 0.5)
+            para = self.particles.iloc[i]
+            para.positionX, para.positionY = 2 * self.xLim * (np.random.rand(1,2)[0] - 0.5)
+            para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5)
+            para.mass = 1
+            para.radius = 0.25
 
-
-    # updates components of position and velocity using Euler method
-    # def euler(self, dt):
-    #     self.position = self.position + self.velocity * dt
-    #     self.velocity = self.velocity + self.acceleration * dt
 
     # updates components of position and velocity using Euler-Cromer method
 
     def eulerCromer(self):
-
+        self.wallCollision()
         for i in range(self.N):
-            self.particles.iloc[i].positionX += self.particles.iloc[i].velocityX * self.dt
-            self.particles.iloc[i].positionY += self.particles.iloc[i].velocityY * self.dt
+            para = self.particles.iloc[i]
+            para.positionX += para.velocityX * self.dt
+            para.positionY += para.velocityY * self.dt
     
 
-    # updates components of position and velocity of a body using Verlet method
     
-    # acceleration issue, can use???????????
-    # def verlet(self):
+
+    def wallCollision(self):
+        for i in range(self.N):
+            para = self.particles.iloc[i]
+            if (((para.positionX > self.xLim - para.radius) and (para.velocityX > 0)) or ((para.positionX < -self.xLim + para.radius) and (para.velocityX < 0))):
+                para.velocityX *= -1
+            if (((para.positionY > self.yLim - para.radius) and (para.velocityY > 0)) or ((para.positionY < -self.yLim + para.radius) and (para.velocityY < 0))):
+                para.velocityY *= -1
+
+
+    # Classical two particle collision (ignores > 2 particles collisions in one timestep)
+
+
+    # def particleCollision(self):
+    #     collided = []
     #     for i in range(self.N):
-    #         self.particles.iloc[i].positionX += self.particles.iloc[i].velocityX * self.dt + 1/2 * accelerationInitial * (self.dt)**2
+    #         para1 = self.particles.iloc[i]
 
+    #         for j in range(self.N):
+    #             para2 = self.particles.iloc[j]
+                
+    #             # check so particle doesn't collide with itself
+    #             if (i == j):
+    #                 continue
 
-    # -/-/-/-/-
-    # def rungeKutta(self, dt):
-        
-    #     k_1 = 
+    #             # checks if particle already collided in current iteration
+    #             if para1.name in collided or para2.name in collided:
+    #                 continue
+                
+                
 
-    #     self.velocity = self.velocity + 1/6 * dt * (k_1 + 2 * k_2 + 2* k_3 + k_4)
-
-
-    # getters
-    # def get_positions(self):
-    #     return [particle.position for particle in self.particles]
     
-    # def get_velocity(self):
-    #     return [particle.velocity for particle in self.particles]
 
 
 
-    # regulates which method was selected
-    def advance(self, n):
-        if n == 1:
-            self.eulerCromer()
-        # if n == 2:
-        #     self.rungeKutta()
+    def calculateTotalSpeedSquared(self):
+        totalSpeedSquared = 0
+        for i in range(self.N):
+            # calculate speed
+            speed = self.particles.iloc[i].velocityX**2 + self.particles.iloc[i].velocityY**2
+            totalSpeedSquared += speed
+        rmsSquared = totalSpeedSquared/self.N
+        return rmsSquared
+
+
+    def calculateTemp(self):
+        rmsSquared = self.calculateTotalSpeedSquared()
+
+        totalMass = 0
+        for i in range(self.N):
+            totalMass += self.particles.iloc[i].mass
+        temp = rmsSquared * totalMass / (2 * self.R)
+        return temp
+
+
+
+
 
 
 
 
 # initialise the object
 simulation = Simulation()
+
+# assign random starting positions & velocities
 simulation.randomiseInitial()
+
 # particles properties
 print(simulation.particles)
+
 
 
 
@@ -84,10 +126,12 @@ print(simulation.particles)
 
 fig = plt.figure()
 
-plt.xlim(-simulation.box_size[0]/2 , simulation.box_size[0]/2)
-plt.ylim(-simulation.box_size[1]/2 , simulation.box_size[1]/2)
+plt.xlim(-simulation.xLim , simulation.xLim)
+plt.ylim(-simulation.yLim , simulation.yLim)
 
-graph, = plt.plot([], [], 'o')
+posX = list(simulation.particles['positionX'])
+posY = list(simulation.particles['positionY'])
+graph, = plt.plot([],[], 'o', markersize=5)
 
 
 def initial():
@@ -97,11 +141,12 @@ def initial():
 
 def render(i):
     # change number for different methods
-    simulation.advance(1)
+    simulation.eulerCromer()
     posX = list(simulation.particles['positionX'])
     posY = list(simulation.particles['positionY'])
     graph.set_data(posX, posY)
     return graph,
+
 
 
 anim = FuncAnimation(fig, render, init_func=initial, interval=1/10, frames=range(1200), blit = True, repeat = False)
