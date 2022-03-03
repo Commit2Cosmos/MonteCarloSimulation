@@ -1,10 +1,12 @@
 import numpy as np
-import math
+# import math
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import pandas as pd
 from Particles import Particle
+import sys
+sys.dont_write_bytecode = True
 
 
 class Simulation():
@@ -35,11 +37,6 @@ class Simulation():
             para.mass = 1
             para.radius = 0.25
 
-
-    # updates components of position and velocity using Euler method
-    # def euler(self, dt):
-    #     self.position = self.position + self.velocity * dt
-    #     self.velocity = self.velocity + self.acceleration * dt
 
     # updates components of position and velocity using Euler-Cromer method
 
@@ -122,8 +119,7 @@ simulation.randomiseInitial()
 # particles properties
 print(simulation.particles)
 
-# system's temperature
-# print(simulation.calculateTemp())
+
 
 
 # plot graph
