@@ -1,3 +1,5 @@
+import sys
+sys.dont_write_bytecode = True
 import numpy as np
 # import math
 import matplotlib as mpl
@@ -5,8 +7,6 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import pandas as pd
 from Particles import Particle
-import sys
-sys.dont_write_bytecode = True
 
 
 class Simulation():
