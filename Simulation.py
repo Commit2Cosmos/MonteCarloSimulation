@@ -44,46 +44,15 @@ class Simulation():
     # updates components of position and velocity using Euler-Cromer method
 
     def eulerCromer(self):
-
+        self.wallCollision()
         for i in range(self.N):
             para = self.particles.iloc[i]
             para.positionX += para.velocityX * self.dt
             para.positionY += para.velocityY * self.dt
     
 
-    # updates components of position and velocity of a body using Verlet method
     
-    # acceleration issue, can use???????????
-    # def verlet(self):
-    #     for i in range(self.N):
-    #         self.particles.iloc[i].positionX += self.particles.iloc[i].velocityX * self.dt + 1/2 * accelerationInitial * (self.dt)**2
 
-
-    # -/-/-/-/-
-    # def rungeKutta(self, dt):
-        
-    #     k_1 = 
-
-    #     self.velocity = self.velocity + 1/6 * dt * (k_1 + 2 * k_2 + 2* k_3 + k_4)
-
-
-    # getters
-    # def get_positions(self):
-    #     return [particle.position for particle in self.particles]
-    
-    # def get_velocity(self):
-    #     return [particle.velocity for particle in self.particles]
-
-
-    # regulates which method was selected
-    def advance(self, n):
-        self.wallCollision()
-        if n == 1:
-            self.eulerCromer()
-        # if n == 2:
-        #     self.rungeKutta()
-
-        
     def wallCollision(self):
         for i in range(self.N):
             para = self.particles.iloc[i]
@@ -93,7 +62,9 @@ class Simulation():
                 para.velocityY *= -1
 
 
-    # # ignores > 2 particles collisions
+    # Classical two particle collision (ignores > 2 particles collisions in one timestep)
+
+
     # def particleCollision(self):
     #     collided = []
     #     for i in range(self.N):
@@ -124,6 +95,7 @@ class Simulation():
             totalSpeedSquared += speed
         rmsSquared = totalSpeedSquared/self.N
         return rmsSquared
+
 
     def calculateTemp(self):
         rmsSquared = self.calculateTotalSpeedSquared()
@@ -173,7 +145,7 @@ def initial():
 
 def render(i):
     # change number for different methods
-    simulation.advance(1)
+    simulation.eulerCromer()
     posX = list(simulation.particles['positionX'])
     posY = list(simulation.particles['positionY'])
     graph.set_data(posX, posY)
@@ -181,6 +153,6 @@ def render(i):
 
 
 
-anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(1200), blit = True, repeat = False)
+anim = FuncAnimation(fig, render, init_func=initial, interval=1/10, frames=range(1200), blit = True, repeat = False)
 
 plt.show()
