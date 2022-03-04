@@ -1,7 +1,7 @@
 import sys
 sys.dont_write_bytecode = True
 import numpy as np
-np.random.seed(2)
+np.random.seed(3)
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -22,9 +22,11 @@ class Simulation():
     R = 1
 
 
-    def __init__(self, dt = 1E-3, N = 20):
+    def __init__(self, dt = 1E-3, N = 5):
         self.dt, self.N = dt, N
-        self.particles = pd.DataFrame(np.array([np.zeros(6)]*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass', 'radius'], dtype = float)
+        # move particle creation to Particle class
+        arr = [np.zeros(7)]
+        self.particles = pd.DataFrame(np.array(arr*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass', 'radius', 'color'])
         # name property is a unique id of a particle
 
 
@@ -36,6 +38,7 @@ class Simulation():
             para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5) * 30
             para.mass = 1
             para.radius = 0.25
+            para.color = 100
 
 
     # collision detection test (head on)
@@ -136,6 +139,11 @@ class Simulation():
         return temp
 
 
+    def getColor(self):
+        colors = []
+        for i in range(self.N):
+            colors.append(self.particles.iloc[i].color)
+        return np.array(colors)
 
 
 
@@ -149,6 +157,7 @@ simulation = Simulation()
 simulation.randomiseInitial()
 # simulation.setConditions()
 
+# print(simulation.getColor())
 
 # particles properties
 print(simulation.particles)
@@ -158,20 +167,22 @@ print(simulation.particles)
 
 # plot graph
 
-fig = plt.figure()
+fig, ax = plt.subplots()
 
-plt.xlim(-simulation.xLim , simulation.xLim)
-plt.ylim(-simulation.yLim , simulation.yLim)
+scatter = ax.scatter([],[])
 
-posX = list(simulation.particles['positionX'])
-posY = list(simulation.particles['positionY'])
-graph, = plt.plot([],[],'o', markersize=5)
-# markersize=5
+# plt.xlim(-simulation.xLim , simulation.xLim)
+# plt.ylim(-simulation.yLim , simulation.yLim)
+
+
+# graph, = plt.scatter([],[],'o', markersize=5)
 
 
 def initial():
-    graph.set_data([], [])
-    return graph,
+    ax.set_xlim(-simulation.xLim , simulation.xLim)
+    ax.set_ylim(-simulation.yLim , simulation.yLim)
+    # scatter.set_array(simulation.getColor())
+    return scatter,
 
 
 def render(i):
@@ -179,11 +190,11 @@ def render(i):
     simulation.eulerCromer()
     posX = list(simulation.particles['positionX'])
     posY = list(simulation.particles['positionY'])
-    graph.set_data(posX, posY)
-    return graph,
+    scatter.set_offsets(np.c_[posX,posY])
+    # scatter.set_array(simulation.getColor())
+    return scatter,
 
 
-
-anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(1200), blit = True, repeat = False)
+anim = FuncAnimation(fig, render, init_func=initial, interval=500, frames=range(1200), blit = True, repeat = False)
 
 plt.show()
