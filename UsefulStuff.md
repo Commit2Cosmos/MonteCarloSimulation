@@ -35,8 +35,10 @@ Populate 'box' with particles (Params: random ? one half filled, Temperature (i.
 Move each particle using some numerical method (v_i(t)*\delta t)
 Split to squares
 Find how many particles in each square
+
 Using parameters like collision cross section and RNG check if there's a collision between each particle (i.e if its collision's 'magic value' is greater than the average for the whole square)
 If yes => compute collision classically
+
 
 
 Checks:
@@ -46,38 +48,26 @@ MB distribution
 Pressure ?
 
 
-Technical:
-
-Add testing functions
-Include all packages needed
-
-
 
 
 Qs:
 
-How to store data:
-grid 
-
-
-Separate file for testing (pytest/unit test)
-
-
-Change color w speed or number of collisions (use scatter!!!!!)
+Change color w speed or number of collisions ????????????????????/
 
 Switch units to mean free path!!!!!!! (check dimensions as a test)
-
-
 Provide diagnostics at the start of the simulation
+Separate file for testing (pytest/unit test)
 
 
 
 
 Introduce seeds for reproducibility
 Use config files to use specific funcs
+
+
 \sigma * c_r is P(collision per time per number density)
 * number density * time => P(collision)
 
 F_N = statistical weight (# of real per simulated) (collection/blob)
 
-n (number density) = N / V * F_N 
+n (number density) = N / V * F_N

@@ -10,7 +10,6 @@ from Particles import Particle
 
 
 class Simulation():
-
     box_size = [20,20]
 
     xLim = box_size[0]/2
@@ -22,7 +21,7 @@ class Simulation():
     R = 1
 
 
-    def __init__(self, dt = 1E-3, N = 5):
+    def __init__(self, dt = 0.5E-2, N = 20):
         self.dt, self.N = dt, N
         # move particle creation to Particle class
         arr = [np.zeros(7)]
@@ -35,13 +34,13 @@ class Simulation():
         for i in range(self.N):
             para = self.particles.iloc[i]
             para.positionX, para.positionY = 2 * self.xLim * (np.random.rand(1,2)[0] - 0.5)
-            para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5) * 30
+            para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5) * 10
             para.mass = 1
             para.radius = 0.25
             para.color = 100
 
 
-    # collision detection test (head on)
+    # collision detection TEST (head on)
     def setConditions(self):
         para1 = self.particles.iloc[0]
         para2 = self.particles.iloc[1]
@@ -58,19 +57,52 @@ class Simulation():
 
 
 
+    # runs the simulation 1 timestep
+
+    def advance(self):
+        self.incrementTime()
+        self.wallCollision()
+        self.particleCollision()
+        self.eulerCromer()
+        self.saveInfo()
+
+
+
+
 
     # updates components of position and velocity using Euler-Cromer method
 
     def eulerCromer(self):
-        self.wallCollision()
-        self.particleCollision()
         for i in range(self.N):
             para = self.particles.iloc[i]
             para.positionX += para.velocityX * self.dt
             para.positionY += para.velocityY * self.dt
-    
 
-    
+
+
+
+    # increment time
+
+    def incrementTime(self):
+        self.time = round(self.time + self.dt, 3)
+
+
+
+    # save info
+
+    def saveInfo(self):
+        if (self.time % 0.05 == 0):
+            time = self.time
+            file = open('data.csv','a')
+            file.write('\n\nTime: ' + str(time) + '\n')
+            file.close()
+            self.particles.to_csv('data.csv',mode='a',header=False)
+
+
+
+
+
+    # collision management
 
     def wallCollision(self):
         for i in range(self.N):
@@ -81,7 +113,7 @@ class Simulation():
                 para.velocityY *= -1
 
 
-    # Classical two particle collision (ignores > 2 particles collisions in one timestep)
+    # classical two particle collision (ignores > 2 particles collisions in one timestep)
 
     def particleCollision(self):
         collided = []
@@ -119,6 +151,10 @@ class Simulation():
 
 
 
+
+
+    # Macro params of a system
+
     def calculateTotalSpeedSquared(self):
         totalSpeedSquared = 0
         for i in range(self.N):
@@ -146,6 +182,8 @@ class Simulation():
         return np.array(colors)
 
 
+        
+
 
 
 
@@ -160,7 +198,7 @@ simulation.randomiseInitial()
 # print(simulation.getColor())
 
 # particles properties
-print(simulation.particles)
+# print(simulation.particles)
 
 
 
@@ -186,8 +224,7 @@ def initial():
 
 
 def render(i):
-    # change number for different methods
-    simulation.eulerCromer()
+    simulation.advance()
     posX = list(simulation.particles['positionX'])
     posY = list(simulation.particles['positionY'])
     scatter.set_offsets(np.c_[posX,posY])
@@ -195,6 +232,6 @@ def render(i):
     return scatter,
 
 
-anim = FuncAnimation(fig, render, init_func=initial, interval=500, frames=range(1200), blit = True, repeat = False)
+anim = FuncAnimation(fig, render, init_func=initial, interval=1, frames=range(1200), blit = True, repeat = False)
 
 plt.show()
