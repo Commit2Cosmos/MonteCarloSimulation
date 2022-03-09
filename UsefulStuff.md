@@ -36,7 +36,7 @@ Move each particle using some numerical method (v_i(t)*\delta t)
 Split to squares
 Find how many particles in each square
 
-Using parameters like collision cross section and RNG check if there's a collision between each particle (i.e if its collision's 'magic value' is greater than the average for the whole square)
+Using parameters like collision cross section check if there's a collision between each particle (i.e if its collision's probability is greater than the average for the whole square)
 If yes => compute collision classically
 
 
@@ -48,11 +48,6 @@ MB distribution
 Pressure ?
 
 
-
-
-Qs:
-
-Change color w speed or number of collisions ????????????????????/
 
 Switch units to mean free path!!!!!!! (check dimensions as a test)
 Provide diagnostics at the start of the simulation
@@ -71,3 +66,11 @@ Use config files to use specific funcs
 F_N = statistical weight (# of real per simulated) (collection/blob)
 
 n (number density) = N / V * F_N
+
+
+
+Qs:
+
+Change color w speed or number of collisions ???????????????????
+How V_cell alters formula??
+How to find F_N or do I just define it myself?

@@ -1,2 +1,5 @@
-x = round(0.125987656789, 3)
-print(x)
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+vs = np.arange(0, 500, 25)
