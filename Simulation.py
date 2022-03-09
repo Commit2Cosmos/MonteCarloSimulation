@@ -278,15 +278,15 @@ simulation.randomiseInitial()
 #     plt.show()
 
 
-
+vrange = np.arrange(1, 100, 10)
 
 
 def particlesPositionAnimation():
-    # fig, (ax,ax2) = plt.subplots(nrows = 2)
-    fig, ax = plt.subplots()
+    fig, (ax,ax2) = plt.subplots(nrows = 2, figsize=(5, 8))
+    # fig, ax = plt.subplots()
 
     scatter = ax.scatter([],[])
-    # bar = ax2.bar()
+    bar = ax2.bar(vrange, [0]*len(vrange), width = 0.9 * np.gradient(vrange), align="edge", alpha=0.8)
 
     def initial():
         ax.set_xlim(-simulation.xLim , simulation.xLim)
@@ -312,4 +312,5 @@ def particlesPositionAnimation():
     plt.show()
 
 
-particlesPositionAnimation()
+# particlesPositionAnimation()
+maxwellDistrib()
