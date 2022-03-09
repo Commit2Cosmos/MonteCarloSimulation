@@ -23,7 +23,7 @@ class Simulation():
     R = 1
 
 
-    def __init__(self, dt = 1E-2, N = 5):
+    def __init__(self, dt = 1E-2, N = 20):
         self.dt, self.N = dt, N
         self.particles = pd.DataFrame(np.array([np.zeros(6)]*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass', 'radius'], dtype = float)
         # name property is a unique id of a particle
@@ -34,7 +34,7 @@ class Simulation():
         for i in range(self.N):
             para = self.particles.iloc[i]
             para.positionX, para.positionY = 2 * self.xLim * (np.random.rand(1,2)[0] - 0.5)
-            para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5)
+            para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5) * 3
             para.mass = 1
             para.radius = 0.25
 
