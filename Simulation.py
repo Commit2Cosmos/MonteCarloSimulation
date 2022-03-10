@@ -38,7 +38,7 @@ class Simulation():
             para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5) * 10
             para.mass = 1
             para.radius = 0.25
-            para.color = 100
+            para.color = 0.2
 
 
     # collision detection TEST (head on)
@@ -257,6 +257,7 @@ class Simulation():
 
 # initialise the object
 simulation = Simulation()
+# print(simulation.particles)
 
 # assign random starting positions & velocities
 simulation.randomiseInitial()
@@ -272,27 +273,29 @@ simulation.randomiseInitial()
 
 # plot graphs
 
-# def maxwellDistrib(bins=5):
-#     values = simulation.speedDistrib()
-#     plt.hist(values, bins=bins)
-#     plt.show()
 
-
-vrange = np.arrange(1, 100, 10)
+vrange = np.arange(0, 100, 10)
 
 
 def particlesPositionAnimation():
-    fig, (ax,ax2) = plt.subplots(nrows = 2, figsize=(5, 8))
-    # fig, ax = plt.subplots()
+    fig, (ax, ax2) = plt.subplots(nrows = 2, figsize=(5, 8))
 
     scatter = ax.scatter([],[])
-    bar = ax2.bar(vrange, [0]*len(vrange), width = 0.9 * np.gradient(vrange), align="edge", alpha=0.8)
+    # bar = ax2.bar(vrange, [0]*len(vrange), width = 0.9 * np.gradient(vrange), align="edge", alpha=0.8)
+
+    # hist = ax2.hist(simulation.speedDistrib(), bins=10)
+    hist = ax2.hist([])
 
     def initial():
         ax.set_xlim(-simulation.xLim , simulation.xLim)
         ax.set_ylim(-simulation.yLim , simulation.yLim)
-        # scatter.set_array(simulation.getColor())
-        return scatter,
+
+        # ax2.set_xlim(vrange[0], vrange[-1])
+        # ax2.set_ylim(0, simulation.N)
+        # ax2.set(xlabel="Particle Speed (m/s)", ylabel="# of particles")
+
+        # return (scatter, *bar.patches)
+        return (scatter, hist)
 
 
     def render(i):
@@ -300,17 +303,19 @@ def particlesPositionAnimation():
 
         # use to set bins limits when actual values of speed are known
         # bins = np.linspace() 
-        # freq, bins = np.histogram(simulation.speedDistrib(), bins=5)
+        # freq, bins = np.histogram(simulation.speedDistrib(), bins=vrange)
 
         posX = list(simulation.particles['positionX'])
         posY = list(simulation.particles['positionY'])
         scatter.set_offsets(np.c_[posX,posY])
-        # scatter.set_array(simulation.getColor())
-        return scatter,
+        scatter.set_array(simulation.getColor())
+
+        # return (scatter, *bar.patches)
+        
+        return (scatter, hist)
 
     anim = FuncAnimation(fig, render, init_func=initial, interval=1, frames=range(1200), blit = True, repeat = False)
     plt.show()
 
 
-# particlesPositionAnimation()
-maxwellDistrib()
+particlesPositionAnimation()
