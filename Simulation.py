@@ -2,7 +2,8 @@ import sys
 sys.dont_write_bytecode = True
 import numpy as np
 # Fixing random state for reproducibility
-np.random.seed(3)
+# resolve 3 particle collision in 3rd seed
+np.random.seed(5)
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -22,7 +23,7 @@ class Simulation():
     R = 1
 
 
-    def __init__(self, dt = 0.5E-2, N = 20):
+    def __init__(self, dt = 0.5E-2, N = 35):
         self.dt, self.N = dt, N
         # move particle creation to Particle class
         arr = [np.zeros(7)]
@@ -167,7 +168,8 @@ class Simulation():
 
     # Monte-Carlo stuff ###########################
 
-    maxProb = 0.8
+    # not 0<1
+    maxProb = 0.8 
 
     # choosing collision pairs through acceptance/rejection procedure        
 
@@ -199,7 +201,8 @@ class Simulation():
 
             prob = area * relSpeed
 
-            if prob > self.maxProb:
+            # Random btw 0,1 if > -> pass
+            if prob/self.maxProb:
                 rx = para1.positionX - para2.positionX
                 ry = para1.positionY - para2.positionY
 
@@ -249,7 +252,7 @@ class Simulation():
         return np.array(colors)
 
 
-        
+
 
 
 
@@ -282,33 +285,39 @@ simulation.randomiseInitial()
 
 
 def particlesPositionAnimation():
-    # fig, (ax,ax2) = plt.subplots(nrows = 2)
-    fig, ax = plt.subplots()
+    fig, (ax, ax2) = plt.subplots(figsize=(5,9), nrows=2)
+    ax.set_aspect('equal')
+
+    vs = np.linspace(0,100,20)
 
     scatter = ax.scatter([],[])
-    # bar = ax2.bar()
+    bar = ax2.bar(vs, [0]*len(vs), width=0.9 * np.gradient(vs), align="edge", alpha=0.8)
 
     def initial():
         ax.set_xlim(-simulation.xLim , simulation.xLim)
         ax.set_ylim(-simulation.yLim , simulation.yLim)
-        # scatter.set_array(simulation.getColor())
-        return scatter,
+        
+        ax2.set_xlim(vs[0],vs[-1])
+        ax2.set_ylim(0,simulation.N)
+
+        return (scatter, *bar.patches)
 
 
     def render(i):
         simulation.advance()
 
-        # use to set bins limits when actual values of speed are known
-        # bins = np.linspace() 
-        # freq, bins = np.histogram(simulation.speedDistrib(), bins=5)
+        freq, bins = np.histogram(simulation.speedDistrib(), bins=vs)
+
+        for rect, height in zip(bar.patches,freq):
+            rect.set_height(height)
 
         posX = list(simulation.particles['positionX'])
         posY = list(simulation.particles['positionY'])
         scatter.set_offsets(np.c_[posX,posY])
         # scatter.set_array(simulation.getColor())
-        return scatter,
+        return (scatter, *bar.patches)
 
-    anim = FuncAnimation(fig, render, init_func=initial, interval=1, frames=range(1200), blit = True, repeat = False)
+    anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(1200), blit = True, repeat = False)
     plt.show()
 
 

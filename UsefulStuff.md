@@ -74,3 +74,12 @@ Qs:
 Change color w speed or number of collisions ???????????????????
 How V_cell alters formula??
 How to find F_N or do I just define it myself?
+
+
+Test: classical number of collisions vs MC
+Fix number density!! Then either N or F_N
+
+Find a high enough value for relative speed for P(max)
+Check how many accepted collisions there are
+Label equations where i got it from
+Describe function output with units
