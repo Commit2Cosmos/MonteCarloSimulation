@@ -1,36 +1,20 @@
-import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
-from matplotlib.animation import FuncAnimation
 
-randints = np.random.randint(100, size=100)
+np.random.seed(5)
+# from Particles import Particle
 
-fig, ax = plt.subplots()
+# N = 3
 
-vs = np.arange(0, 100, 25)
+# data=[Particle(i) for i in range(N)]
 
-# Plot the histogram with hist() function
-bar = ax.bar(vs, [0]*len(vs), width=0.9 * np.gradient(vs), align="edge", alpha=0.8)
+# particlesData = pd.DataFrame()
 
-# print(hist)
-
-# Label axes and set title
-
-ax.set_title("Title")
-ax.set_xlabel("X_Label")
-ax.set_ylabel("Y_Label")
+# print(data[0].positionX)
 
 
-def render(i):
 
-    bar.set_offsets(np.random.randint(100, size=100), edgecolor = "black", bins = 5)
-    return bar.patches
-
-
-# anim = FuncAnimation(fig, render, interval=1000, frames=range(1200), blit = True, repeat = False)
-
-
-plt.show()
-
+x, y = np.random.rand(1,2)[0]
 
 
 

@@ -3,7 +3,7 @@ sys.dont_write_bytecode = True
 import numpy as np
 # Fixing random state for reproducibility
 # resolve 3 particle collision in 3rd seed
-np.random.seed(5)
+np.random.seed(3)
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -23,39 +23,9 @@ class Simulation():
     R = 1
 
 
-    def __init__(self, dt = 0.5E-2, N = 35):
+    def __init__(self, dt = 0.5E-2, N = 25):
         self.dt, self.N = dt, N
-        # move particle creation to Particle class
-        arr = [np.zeros(7)]
-        self.particles = pd.DataFrame(np.array(arr*N), columns=['positionX', 'positionY', 'velocityX', 'velocityY', 'mass', 'radius', 'color'])
-        # name property is a unique id of a particle
-
-
-    # RANDOMNESS
-    def randomiseInitial(self):
-        for i in range(self.N):
-            para = self.particles.iloc[i]
-            para.positionX, para.positionY = 2 * self.xLim * (np.random.rand(1,2)[0] - 0.5)
-            para.velocityX, para.velocityY = self.yLim * (np.random.rand(1,2)[0] - 0.5) * 10
-            para.mass = 1
-            para.radius = 0.25
-            para.color = 100
-
-
-    # collision detection TEST (head on)
-    def setConditions(self):
-        para1 = self.particles.iloc[0]
-        para2 = self.particles.iloc[1]
-
-        para1.positionX, para1.positionY = -2, 0
-        para1.velocityX, para1.velocityY = 1, 0
-        para1.mass = 1
-        para1.radius = 0.25
-
-        para2.positionX, para2.positionY = 2, 0
-        para2.velocityX, para2.velocityY = -1, 0
-        para2.mass = 1
-        para2.radius = 0.25
+        self.particles = [Particle(i) for i in range(self.N)]
 
 
 
@@ -66,7 +36,7 @@ class Simulation():
         self.wallCollision()
         self.particleCollisionClassical()
         self.eulerCromer()
-        self.saveInfo()
+        # self.saveInfo()
 
 
 
@@ -76,7 +46,7 @@ class Simulation():
 
     def eulerCromer(self):
         for i in range(self.N):
-            para = self.particles.iloc[i]
+            para = self.particles[i]
             para.positionX += para.velocityX * self.dt
             para.positionY += para.velocityY * self.dt
 
@@ -97,7 +67,7 @@ class Simulation():
             time = self.time
             file = open('data.csv','a')
             file.write('\n\nTime: ' + str(time) + '\n')
-
+            # WHICH PARAMS TO WRITE????
             file.close()
             # self.particles.to_csv('data.csv',mode='a',header=False)
 
@@ -106,7 +76,7 @@ class Simulation():
     def speedDistrib(self):
         speeds = []
         for i in range(self.N):
-            para = self.particles.iloc[i]
+            para = self.particles[i]
             speed = np.sqrt(para.velocityX**2 + para.velocityY**2)
             speeds.append(speed)
         return speeds
@@ -119,7 +89,7 @@ class Simulation():
 
     def wallCollision(self):
         for i in range(self.N):
-            para = self.particles.iloc[i]
+            para = self.particles[i]
             if (((para.positionX > self.xLim - para.radius) and (para.velocityX > 0)) or ((para.positionX < -self.xLim + para.radius) and (para.velocityX < 0))):
                 para.velocityX *= -1
             if (((para.positionY > self.yLim - para.radius) and (para.velocityY > 0)) or ((para.positionY < -self.yLim + para.radius) and (para.velocityY < 0))):
@@ -130,37 +100,34 @@ class Simulation():
 
     def particleCollisionClassical(self):
         collided = []
-        for i in range(self.N):
-            para1 = self.particles.iloc[i]
-
-            for j in range(self.N):
-                para2 = self.particles.iloc[j]
+        for i in self.particles:
+            for j in self.particles:
 
                 # check so particle doesn't collide with itself & if particle already collided in current iteration
-                if ((i == j) or (para1.name in collided or para2.name in collided)):
+                if ((i == j) or (i.id in collided or j.id in collided)):
                     continue
                 
-                rx = para1.positionX - para2.positionX
-                ry = para1.positionY - para2.positionY
+                rx = i.positionX - j.positionX
+                ry = i.positionY - j.positionY
 
                 # Equations for angle-free representation of an elastic collision were taken from Wikipedia
-                if np.dot((rx,ry),(rx,ry)) <= (para1.radius + para2.radius)**2:
-                    vx = para1.velocityX - para2.velocityX
-                    vy = para1.velocityY - para2.velocityY
+                if np.dot((rx,ry),(rx,ry)) <= (i.radius + j.radius)**2:
+                    vx = i.velocityX - j.velocityX
+                    vy = i.velocityY - j.velocityY
 
                     inner = np.dot((vx, vy),(rx,ry))
                     mag = rx**2 + ry**2
-                    m = para1.mass + para2.mass
+                    m = i.mass + j.mass
                     mmag = (m * mag)
 
                     
-                    para1.velocityX -= 2*para2.mass*inner*rx/mmag
-                    para1.velocityY -= 2*para2.mass*inner*ry/mmag
-                    para2.velocityX += 2*para1.mass*inner*rx/mmag
-                    para2.velocityY += 2*para1.mass*inner*ry/mmag
+                    i.velocityX -= 2*j.mass*inner*rx/mmag
+                    i.velocityY -= 2*j.mass*inner*ry/mmag
+                    j.velocityX += 2*i.mass*inner*rx/mmag
+                    j.velocityY += 2*i.mass*inner*ry/mmag
 
-                    collided.append(para1.name)
-                    collided.append(para2.name)
+                    collided.append(i.id)
+                    collided.append(j.id)
 
 
 
@@ -191,30 +158,30 @@ class Simulation():
         count = 0
         while count < int(np.floor(self.numberOfPairs())):
             first, second = self.chooseRandomParticles()
-            para1, para2 = self.particles.iloc[first], self.particles.iloc[second]
+            i, j = self.particles[first], self.particles[second]
 
-            area = np.pi*(para1.radius**2 + para2.radius**2)/2
+            area = np.pi*(i.radius**2 + j.radius**2)/2
 
-            vx = para1.velocityX - para2.velocityX
-            vy = para1.velocityY - para2.velocityY
+            vx = i.velocityX - j.velocityX
+            vy = i.velocityY - j.velocityY
             relSpeed = np.sqrt(vx**2 + vy**2)
 
             prob = area * relSpeed
 
             # Random btw 0,1 if > -> pass
             if prob/self.maxProb:
-                rx = para1.positionX - para2.positionX
-                ry = para1.positionY - para2.positionY
+                rx = i.positionX - j.positionX
+                ry = i.positionY - j.positionY
 
                 inner = np.dot((vx, vy),(rx,ry))
                 mag = rx**2 + ry**2
-                m = para1.mass + para2.mass
+                m = i.mass + j.mass
                 mmag = (m * mag)
 
-                para1.velocityX -= 2*para2.mass*inner*rx/mmag
-                para1.velocityY -= 2*para2.mass*inner*ry/mmag
-                para2.velocityX += 2*para1.mass*inner*rx/mmag
-                para2.velocityY += 2*para1.mass*inner*ry/mmag
+                i.velocityX -= 2*j.mass*inner*rx/mmag
+                i.velocityY -= 2*j.mass*inner*ry/mmag
+                j.velocityX += 2*i.mass*inner*rx/mmag
+                j.velocityY += 2*i.mass*inner*ry/mmag
 
 
 
@@ -227,9 +194,9 @@ class Simulation():
 
     def calculateTotalSpeedSquared(self):
         totalSpeedSquared = 0
-        for i in range(self.N):
+        for particle in self.particles:
             # calculate speed
-            speed = self.particles.iloc[i].velocityX**2 + self.particles.iloc[i].velocityY**2
+            speed = particle.velocityX**2 + particle.velocityY**2
             totalSpeedSquared += speed
         rmsSquared = totalSpeedSquared/self.N
         return rmsSquared
@@ -239,21 +206,25 @@ class Simulation():
         rmsSquared = self.calculateTotalSpeedSquared()
 
         totalMass = 0
-        for i in range(self.N):
-            totalMass += self.particles.iloc[i].mass
+        for particle in self.particles:
+            totalMass += particle.mass
         temp = rmsSquared * totalMass / (2 * self.R)
         return temp
 
 
-    def getColor(self):
+    def setColor(self):
         colors = []
-        for i in range(self.N):
-            colors.append(self.particles.iloc[i].color)
+        for particle in self.particles:
+            colors.append(particle.color)
         return np.array(colors)
 
-
-
-
+    
+    def getPositions(self):
+        x, y = [], []
+        for particle in self.particles:
+            x.append(particle.positionX)
+            y.append(particle.positionY)
+        return x, y
 
 
 
@@ -261,27 +232,24 @@ class Simulation():
 # initialise the object
 simulation = Simulation()
 
-# assign random starting positions & velocities
-simulation.randomiseInitial()
-# simulation.setConditions()
-
 # print(simulation.getColor())
 
-# particles properties
-# print(simulation.particles)
+
+
+# posX, posY = simulation.getPositions()
+# print(posX)
+# print(posY)
+
+# simulation.advance()
+# posX, posY = simulation.getPositions()
+# print(posX)
+# print(posY)
+
 
 
 
 
 # plot graphs
-
-# def maxwellDistrib(bins=5):
-#     values = simulation.speedDistrib()
-#     plt.hist(values, bins=bins)
-#     plt.show()
-
-
-
 
 
 def particlesPositionAnimation():
@@ -298,7 +266,7 @@ def particlesPositionAnimation():
         ax.set_ylim(-simulation.yLim , simulation.yLim)
         
         ax2.set_xlim(vs[0],vs[-1])
-        ax2.set_ylim(0,simulation.N)
+        ax2.set_ylim(0, simulation.N)
 
         return (scatter, *bar.patches)
 
@@ -311,13 +279,12 @@ def particlesPositionAnimation():
         for rect, height in zip(bar.patches,freq):
             rect.set_height(height)
 
-        posX = list(simulation.particles['positionX'])
-        posY = list(simulation.particles['positionY'])
+        posX, posY = simulation.getPositions()
         scatter.set_offsets(np.c_[posX,posY])
-        # scatter.set_array(simulation.getColor())
+        # scatter.set_color(simulation.getColor())
         return (scatter, *bar.patches)
 
-    anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(1200), blit = True, repeat = False)
+    anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(120), blit = True, repeat = True)
     plt.show()
 
 

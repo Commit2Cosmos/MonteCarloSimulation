@@ -72,8 +72,7 @@ n (number density) = N / V * F_N
 Qs:
 
 Change color w speed or number of collisions ???????????????????
-How V_cell alters formula??
-How to find F_N or do I just define it myself?
+
 
 
 Test: classical number of collisions vs MC
