@@ -20,10 +20,10 @@ class Simulation():
     time = 0
     
     # CONSTANTS
-    R = 1
+    k = 1.38064852E-23
 
 
-    def __init__(self, dt = 0.5E-2, N = 25):
+    def __init__(self, dt = 0.5E-4, N = 20):
         self.dt, self.N = dt, N
         self.particles = [Particle(i) for i in range(self.N)]
 
@@ -115,28 +115,33 @@ class Simulation():
                     vx = i.velocityX - j.velocityX
                     vy = i.velocityY - j.velocityY
 
-                    inner = np.dot((vx, vy),(rx,ry))
-                    mag = rx**2 + ry**2
-                    m = i.mass + j.mass
-                    mmag = (m * mag)
-
-                    
-                    i.velocityX -= 2*j.mass*inner*rx/mmag
-                    i.velocityY -= 2*j.mass*inner*ry/mmag
-                    j.velocityX += 2*i.mass*inner*rx/mmag
-                    j.velocityY += 2*i.mass*inner*ry/mmag
+                    self.velocityCalculation(vx,vy,rx,ry,i,j)
 
                     collided.append(i.id)
                     collided.append(j.id)
 
 
 
+    def velocityCalculation(self,vx,vy,rx,ry,i,j):
+
+        inner = np.dot((vx, vy),(rx,ry))
+        mag = rx**2 + ry**2
+        m = i.mass + j.mass
+        mmag = (m * mag)
+
+
+        i.velocityX -= 2*j.mass*inner*rx/mmag
+        i.velocityY -= 2*j.mass*inner*ry/mmag
+        j.velocityX += 2*i.mass*inner*rx/mmag
+        j.velocityY += 2*i.mass*inner*ry/mmag
+
+
 
 
     # Monte-Carlo stuff ###########################
 
-    # not 0<1
-    maxProb = 0.8 
+    # def maximumProb():
+
 
     # choosing collision pairs through acceptance/rejection procedure        
 
@@ -173,46 +178,14 @@ class Simulation():
                 rx = i.positionX - j.positionX
                 ry = i.positionY - j.positionY
 
-                inner = np.dot((vx, vy),(rx,ry))
-                mag = rx**2 + ry**2
-                m = i.mass + j.mass
-                mmag = (m * mag)
-
-                i.velocityX -= 2*j.mass*inner*rx/mmag
-                i.velocityY -= 2*j.mass*inner*ry/mmag
-                j.velocityX += 2*i.mass*inner*rx/mmag
-                j.velocityY += 2*i.mass*inner*ry/mmag
+                self.velocityCalculation(vx,vy,rx,ry,i,j)
 
 
 
 
+    # params of particles
 
-
-
-
-    # Macro params of a system
-
-    def calculateTotalSpeedSquared(self):
-        totalSpeedSquared = 0
-        for particle in self.particles:
-            # calculate speed
-            speed = particle.velocityX**2 + particle.velocityY**2
-            totalSpeedSquared += speed
-        rmsSquared = totalSpeedSquared/self.N
-        return rmsSquared
-
-
-    def calculateTemp(self):
-        rmsSquared = self.calculateTotalSpeedSquared()
-
-        totalMass = 0
-        for particle in self.particles:
-            totalMass += particle.mass
-        temp = rmsSquared * totalMass / (2 * self.R)
-        return temp
-
-
-    def setColor(self):
+    def getColor(self):
         colors = []
         for particle in self.particles:
             colors.append(particle.color)
@@ -229,21 +202,51 @@ class Simulation():
 
 
 
+    # macro params of a system
+
+    def calculateRMSSquared(self):
+        totalSpeedSquared = 0
+        for particle in self.particles:
+            speed = particle.velocityX**2 + particle.velocityY**2
+            totalSpeedSquared += speed
+        rmsSquared = totalSpeedSquared/self.N
+        return rmsSquared
+
+
+    def calculateTemp(self):
+        rmsSquared = self.calculateRMSSquared()
+
+        # average mass of all particles
+        mass = self.particles[0].mass
+        temp = rmsSquared * mass / (2 * self.k)
+        return temp
+
+
+    def avEnergy(self):
+        E = 0
+        for particle in self.particles:
+            E += 0.5*particle.mass*(particle.velocityX**2+particle.velocityY**2)
+        return E / self.N
+
+
+
+
+
+
+
+
+
 # initialise the object
 simulation = Simulation()
 
-# print(simulation.getColor())
+print(np.sqrt(simulation.calculateRMSSquared()))
+print(simulation.calculateTemp())
 
 
 
-# posX, posY = simulation.getPositions()
-# print(posX)
-# print(posY)
 
-# simulation.advance()
-# posX, posY = simulation.getPositions()
-# print(posX)
-# print(posY)
+
+
 
 
 
@@ -253,8 +256,8 @@ simulation = Simulation()
 
 
 def particlesPositionAnimation():
-    fig, (ax, ax2) = plt.subplots(figsize=(5,9), nrows=2)
-    ax.set_aspect('equal')
+    fig, (ax, ax2) = plt.subplots(1,2, gridspec_kw={'width_ratios': [7, 4]})
+    # ax.set_aspect('auto')
 
     vs = np.linspace(0,100,20)
 
@@ -281,7 +284,7 @@ def particlesPositionAnimation():
 
         posX, posY = simulation.getPositions()
         scatter.set_offsets(np.c_[posX,posY])
-        # scatter.set_color(simulation.getColor())
+        scatter.set_color(simulation.getColor())
         return (scatter, *bar.patches)
 
     anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(120), blit = True, repeat = True)
