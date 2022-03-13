@@ -65,7 +65,7 @@ Use config files to use specific funcs
 
 F_N = statistical weight (# of real per simulated) (collection/blob)
 
-n (number density) = N / V * F_N
+n (number density) = N / A * F_N
 
 
 

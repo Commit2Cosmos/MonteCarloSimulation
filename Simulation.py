@@ -2,25 +2,24 @@ import sys
 sys.dont_write_bytecode = True
 import numpy as np
 # Fixing random state for reproducibility
-# resolve 3 particle collision in 3rd seed
+# resolve 3 particle collision!!!!!!!
 np.random.seed(3)
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-import pandas as pd
 from Particles import Particle
 
 
 class Simulation():
     boxSize = [20,20]
-
     xLim = boxSize[0]/2
     yLim = boxSize[1]/2
 
     time = 0
-    
+
     # CONSTANTS
     k = 1.38064852E-23
+    nd = 2.5E25
 
 
     def __init__(self, dt = 0.5E-4, N = 20):
@@ -145,10 +144,11 @@ class Simulation():
 
     # choosing collision pairs through acceptance/rejection procedure        
 
+    def calculateFN(self):
+        return self.N/(self.nd*4*self.xLim*self.yLim)
 
     def numberOfPairs(self):
-        fN = 1000
-        return (1/2 * self.N * (self.N - 1) * fN * self.maxProb * self.dt) / (4 * self.xLim * self.yLim)
+        return (1/2 * self.N * (self.N - 1) * self.calculateFN() * self.maxProb * self.dt) / (4 * self.xLim * self.yLim)
 
 
     def chooseRandomParticles(self):
@@ -174,9 +174,10 @@ class Simulation():
             prob = area * relSpeed
 
             # Random btw 0,1 if > -> pass
-            if prob/self.maxProb:
+            if (prob/self.maxProb) > np.random.random(1)[0]:
                 rx = i.positionX - j.positionX
                 ry = i.positionY - j.positionY
+                print('passed')
 
                 self.velocityCalculation(vx,vy,rx,ry,i,j)
 
@@ -259,7 +260,7 @@ def particlesPositionAnimation():
     fig, (ax, ax2) = plt.subplots(1,2, gridspec_kw={'width_ratios': [7, 4]})
     # ax.set_aspect('auto')
 
-    vs = np.linspace(0,100,20)
+    vs = np.linspace(0,3000,20)
 
     scatter = ax.scatter([],[])
     bar = ax2.bar(vs, [0]*len(vs), width=0.9 * np.gradient(vs), align="edge", alpha=0.8)
