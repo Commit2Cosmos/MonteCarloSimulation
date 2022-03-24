@@ -65,20 +65,18 @@ Use config files to use specific funcs
 
 F_N = statistical weight (# of real per simulated) (collection/blob)
 
-n (number density) = N / A * F_N
-
+n (number density) = (N / A) * F_N
 
 
 Qs:
 
-Change color w speed or number of collisions ???????????????????
+total kinetic E at different T
+-Flow time vs next output time
 
 
+ToDo:
 
-Test: classical number of collisions vs MC
-Fix number density!! Then either N or F_N
-
-Find a high enough value for relative speed for P(max)
-Check how many accepted collisions there are
-Label equations where i got it from
-Describe function output with units
+-Knudsen number
+-Wall collision
+-Tests
+-Collision frequency comparison: theory vs mine discrepancy

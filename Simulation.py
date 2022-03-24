@@ -1,128 +1,119 @@
 import sys
 sys.dont_write_bytecode = True
 import numpy as np
-# Fixing random state for reproducibility
-# resolve 3 particle collision!!!!!!!
-np.random.seed(3)
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+import scipy.special as spec
+import scipy.constants as const
 from Particles import Particle
 
 
+
 class Simulation():
-    boxSize = [20,20]
-    xLim = boxSize[0]/2
-    yLim = boxSize[1]/2
 
-    time = 0
+    def __init__(self, dt = 1E-10, N = 100, nd = 2.7E25, maxRS = 2000, time = 0., temp=300):
 
-    # CONSTANTS
-    k = 1.38064852E-23
-    nd = 2.5E25
+        self.dt, self.N, self.nd, self.maxRS, self.time, self.temp = dt, N, nd, maxRS, time, temp
 
-
-    def __init__(self, dt = 0.5E-4, N = 20):
-        self.dt, self.N = dt, N
         self.particles = [Particle(i) for i in range(self.N)]
 
+        self.sigma = const.pi * self.particles[0].radius**2 * 4
+        self.meanFP = 1/(self.sigma*nd)
+        self.FN = self.nd * self.meanFP**2 / self.N
+        print('FN: ' + str(self.FN))
+        self.pairs = self.numberOfPairs()
+        print('meanFP: ' + str(self.meanFP))
+
+        self.uniformPosition()
+        self.normalVelocity()
 
 
-    # runs the simulation 1 timestep
+
+    def uniformPosition(self):
+        for i in self.particles:
+            i.positionX, i.positionY = 2 * self.meanFP * (np.random.rand(1,2)[0]-0.5)
+
+    def uniformVelocity(self):
+        for i in self.particles:
+            i.velocityX, i.velocityY = self.maxRS * (np.random.rand(1,2)[0]-0.5)
+
+    def normalVelocity(self):
+        for i in self.particles:
+            i.velocityX, i.velocityY = np.random.normal(0 , np.sqrt(const.k*self.temp/i.mass) , size=(1,2))[0]
+
+
+
 
     def advance(self):
+        """Calls the necessary functions to run the simulation for one timestep
+    	"""
+        if self.time == 0:
+            self.saveInfo()
         self.incrementTime()
         self.wallCollision()
-        self.particleCollisionClassical()
+        # self.particleCollisionClassical()
+        self.particleCollisionMC()
         self.eulerCromer()
-        # self.saveInfo()
+        self.saveInfo()
 
 
 
 
-
-    # updates components of position and velocity using Euler-Cromer method
 
     def eulerCromer(self):
-        for i in range(self.N):
-            para = self.particles[i]
-            para.positionX += para.velocityX * self.dt
-            para.positionY += para.velocityY * self.dt
+        """Update position and velocity components using Euler-Cromer method
+	    """
+        for i in self.particles:
+            i.positionX += i.velocityX * self.dt
+            i.positionY += i.velocityY * self.dt
 
-
-
-
-    # increment time
 
     def incrementTime(self):
-        self.time = round(self.time + self.dt, 3)
+        """Increment the time every timestep
+	    """
+        self.time = round(self.time + self.dt, 10)
 
 
+    def saveInfo(self, tPeriod=1E-10):
+        """Save information about system's parameters to the csv file
 
-    # save info
+        Args:
 
-    def saveInfo(self):
-        if (self.time % 0.05 == 0):
+            :param float tPeriod: Time period after which the data is saved [s]
+	    """
+        if (round(self.time % tPeriod, 1) == 0):
             time = self.time
             file = open('data.csv','a')
             file.write('\n\nTime: ' + str(time) + '\n')
-            # WHICH PARAMS TO WRITE????
+            temp = self.calculateTemp()
+            file.write('Temperature: ' + str(temp))
             file.close()
-            # self.particles.to_csv('data.csv',mode='a',header=False)
 
 
 
-    def speedDistrib(self):
-        speeds = []
-        for i in range(self.N):
-            para = self.particles[i]
-            speed = np.sqrt(para.velocityX**2 + para.velocityY**2)
-            speeds.append(speed)
-        return speeds
-
-
-
-
-
-    # collision management
+##### COLLISION MANAGEMENT ###############################################
 
     def wallCollision(self):
-        for i in range(self.N):
-            para = self.particles[i]
-            if (((para.positionX > self.xLim - para.radius) and (para.velocityX > 0)) or ((para.positionX < -self.xLim + para.radius) and (para.velocityX < 0))):
-                para.velocityX *= -1
-            if (((para.positionY > self.yLim - para.radius) and (para.velocityY > 0)) or ((para.positionY < -self.yLim + para.radius) and (para.velocityY < 0))):
-                para.velocityY *= -1
-
-
-    # classical two particle collision (ignores > 2 particles collisions in one timestep)
-
-    def particleCollisionClassical(self):
-        collided = []
+        """Reverse particle's velocity component if collision with the wall is detected
+	    """
         for i in self.particles:
-            for j in self.particles:
-
-                # check so particle doesn't collide with itself & if particle already collided in current iteration
-                if ((i == j) or (i.id in collided or j.id in collided)):
-                    continue
-                
-                rx = i.positionX - j.positionX
-                ry = i.positionY - j.positionY
-
-                # Equations for angle-free representation of an elastic collision were taken from Wikipedia
-                if np.dot((rx,ry),(rx,ry)) <= (i.radius + j.radius)**2:
-                    vx = i.velocityX - j.velocityX
-                    vy = i.velocityY - j.velocityY
-
-                    self.velocityCalculation(vx,vy,rx,ry,i,j)
-
-                    collided.append(i.id)
-                    collided.append(j.id)
-
+            diff = self.meanFP - i.radius
+            if (((i.positionX > diff) and (i.velocityX > 0)) or ((i.positionX < -diff) and (i.velocityX < 0))):
+                i.velocityX *= -1
+            if (((i.positionY > diff) and (i.velocityY > 0)) or ((i.positionY < -diff) and (i.velocityY < 0))):
+                i.velocityY *= -1
 
 
     def velocityCalculation(self,vx,vy,rx,ry,i,j):
+        """Utilise equations for angle-free representation of an elastic collision to resolve velocities of particles after the collision
 
+	    Args:
+
+            :param float vx: Difference between velocity x-component of the two particles [m/s]
+            :param float vy: Difference between velocity y-component of the two particles [m/s]
+            :param float rx: Difference between position x-component of the two particles [m]
+            :param float ry: Difference between position y-component of the two particles [m]
+            :param i Particle class instance: First colliding particle
+            :param j Particle class instance: Second colliding particle
+	    """
         inner = np.dot((vx, vy),(rx,ry))
         mag = rx**2 + ry**2
         m = i.mass + j.mass
@@ -135,23 +126,56 @@ class Simulation():
         j.velocityY += 2*i.mass*inner*ry/mmag
 
 
+    def particleCollisionClassical(self):
+        """Check for and resolve a classical two particle collision (ignores > 2 particles collisions in one timestep)
+	    """
+        collided = []
+        for i in self.particles:
+            for j in self.particles:
+
+                # check so particle doesn't collide with itself & if particle already collided in current iteration
+                if ((i == j) or (i.id in collided or j.id in collided)):
+                    continue
+                
+                rx = i.positionX - j.positionX
+                ry = i.positionY - j.positionY
+
+                if np.dot((rx,ry),(rx,ry)) <= (i.radius + j.radius)**2:
+                    vx = i.velocityX - j.velocityX
+                    vy = i.velocityY - j.velocityY
+
+                    self.velocityCalculation(vx,vy,rx,ry,i,j)
+
+                    collided.append(i.id)
+                    collided.append(j.id)
 
 
-    # Monte-Carlo stuff ###########################
-
-    # def maximumProb():
 
 
-    # choosing collision pairs through acceptance/rejection procedure        
 
-    def calculateFN(self):
-        return self.N/(self.nd*4*self.xLim*self.yLim)
+
+
+    # MONTE CARLO METHOD #####################################################
 
     def numberOfPairs(self):
-        return (1/2 * self.N * (self.N - 1) * self.calculateFN() * self.maxProb * self.dt) / (4 * self.xLim * self.yLim)
+        """Calculate the number of collision pairs in 1 timestep (calculated once at the star of the simulation as the value stays constant throughout)
+
+        Args:
+
+            :return: Collision pairs number
+	    """
+        nP = (1/2 * self.N * (self.N - 1) * self.FN * (self.maxRS * const.pi * self.particles[0].radius**2) * self.dt) / (4 * self.meanFP**2)
+        print('pairs: ' + str(nP))
+        return nP
 
 
     def chooseRandomParticles(self):
+        """Return two random non-equal integers in the range of the number of particles
+
+	    Args:
+
+		    :return: Two integers
+	    """
         first = np.random.randint(0, self.N)
         second = np.random.randint(0, self.N)
         while second == first:
@@ -160,40 +184,65 @@ class Simulation():
 
 
     def particleCollisionMC(self):
+        """Implementation of the Monte-Carlo method based on acceptance/rejection procedure
+	    """
+        
+
         count = 0
-        while count < int(np.floor(self.numberOfPairs())):
+        while count < int(self.pairs):
             first, second = self.chooseRandomParticles()
             i, j = self.particles[first], self.particles[second]
-
-            area = np.pi*(i.radius**2 + j.radius**2)/2
 
             vx = i.velocityX - j.velocityX
             vy = i.velocityY - j.velocityY
             relSpeed = np.sqrt(vx**2 + vy**2)
+            ratio = relSpeed/self.maxRS
+            print(ratio)
 
-            prob = area * relSpeed
+            # resets the maximum probability value if a higher one was encountered
+            if ratio > 1:
+                self.maxRS = relSpeed
+                self.pairs = self.numberOfPairs()
+                print('!!new maxRS!!: ' + str(self.maxRS))
 
-            # Random btw 0,1 if > -> pass
-            if (prob/self.maxProb) > np.random.random(1)[0]:
+            # resolves the collision classically if the ratio of current and maximum collision probabilities is greater than a random number between 0 and 1
+            if ratio > np.random.random(1)[0]:
                 rx = i.positionX - j.positionX
                 ry = i.positionY - j.positionY
-                print('passed')
-
+                print('!collision!')
+                
                 self.velocityCalculation(vx,vy,rx,ry,i,j)
+            count += 1
 
 
 
 
-    # params of particles
+
+
+    # PARTICLES' PARAMETERS ##################################
+
 
     def getColor(self):
+        """Return colours of all particles
+
+	    Args:
+
+		    :return: np.array of particles' colours
+	    """
         colors = []
         for particle in self.particles:
             colors.append(particle.color)
         return np.array(colors)
 
-    
+
+    # returns two arrays of particles' x and y positions at current timestep
     def getPositions(self):
+        """Return the position of each particle
+
+	    Args:
+
+    		:return: Two arrays with x- and y-components of each particle's position
+	    """
         x, y = [], []
         for particle in self.particles:
             x.append(particle.positionX)
@@ -201,11 +250,34 @@ class Simulation():
         return x, y
 
 
+    def getSpeeds(self):
+        """Return the speed of each particle
+
+	    Args:
+
+		    :return: An array with each particle's speed
+	    """
+        speeds = []
+        for particle in self.particles:
+            speed = np.sqrt(particle.velocityX**2 + particle.velocityY**2)
+            speeds.append(speed)
+        return speeds
 
 
-    # macro params of a system
+
+
+
+
+
+    # CALCULATE PROPERTIES OF SIMULATION #############################
 
     def calculateRMSSquared(self):
+        """Calculate an average rms speed squared value
+
+	    Args:
+
+		    :return: The rms speed of the particles [m/s]
+	"""
         totalSpeedSquared = 0
         for particle in self.particles:
             speed = particle.velocityX**2 + particle.velocityY**2
@@ -215,24 +287,17 @@ class Simulation():
 
 
     def calculateTemp(self):
+        """Calculate the temperature of the system from the rms speed value
+
+	    Args:
+
+		    :return: Temperature of the system [K]
+	    """
         rmsSquared = self.calculateRMSSquared()
 
         # average mass of all particles
-        mass = self.particles[0].mass
-        temp = rmsSquared * mass / (2 * self.k)
+        temp = rmsSquared * self.particles[0].mass / (2 * const.k)
         return temp
-
-
-    def avEnergy(self):
-        E = 0
-        for particle in self.particles:
-            E += 0.5*particle.mass*(particle.velocityX**2+particle.velocityY**2)
-        return E / self.N
-
-
-
-
-
 
 
 
@@ -240,56 +305,5 @@ class Simulation():
 # initialise the object
 simulation = Simulation()
 
-print(np.sqrt(simulation.calculateRMSSquared()))
-print(simulation.calculateTemp())
 
-
-
-
-
-
-
-
-
-
-
-# plot graphs
-
-
-def particlesPositionAnimation():
-    fig, (ax, ax2) = plt.subplots(1,2, gridspec_kw={'width_ratios': [7, 4]})
-    # ax.set_aspect('auto')
-
-    vs = np.linspace(0,3000,20)
-
-    scatter = ax.scatter([],[])
-    bar = ax2.bar(vs, [0]*len(vs), width=0.9 * np.gradient(vs), align="edge", alpha=0.8)
-
-    def initial():
-        ax.set_xlim(-simulation.xLim , simulation.xLim)
-        ax.set_ylim(-simulation.yLim , simulation.yLim)
-        
-        ax2.set_xlim(vs[0],vs[-1])
-        ax2.set_ylim(0, simulation.N)
-
-        return (scatter, *bar.patches)
-
-
-    def render(i):
-        simulation.advance()
-
-        freq, bins = np.histogram(simulation.speedDistrib(), bins=vs)
-
-        for rect, height in zip(bar.patches,freq):
-            rect.set_height(height)
-
-        posX, posY = simulation.getPositions()
-        scatter.set_offsets(np.c_[posX,posY])
-        scatter.set_color(simulation.getColor())
-        return (scatter, *bar.patches)
-
-    anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(120), blit = True, repeat = True)
-    plt.show()
-
-
-particlesPositionAnimation()
+simulation.advance()
