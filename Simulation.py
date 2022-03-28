@@ -9,18 +9,18 @@ from Particles import Particle
 
 class Simulation():
 
-    def __init__(self, dt = 1E-10, N = 100, nd = 2.7E25, maxRS = 2000, time = 0., temp=300):
+    def __init__(self, N = 100, dt = 1E-10, nd = 2.7E25, maxRS = 2000, time = 0., temp=300):
 
-        self.dt, self.N, self.nd, self.maxRS, self.time, self.temp = dt, N, nd, maxRS, time, temp
+        self.N, self.dt, self.nd, self.maxRS, self.time, self.temp = N, dt, nd, maxRS, time, temp
 
         self.particles = [Particle(i) for i in range(self.N)]
 
         self.sigma = const.pi * self.particles[0].radius**2 * 4
         self.meanFP = 1/(self.sigma*nd)
+        print('meanFP: ' + str(self.meanFP))
         self.FN = self.nd * self.meanFP**2 / self.N
         print('FN: ' + str(self.FN))
         self.pairs = self.numberOfPairs()
-        print('meanFP: ' + str(self.meanFP))
 
         self.uniformPosition()
         self.normalVelocity()
@@ -100,6 +100,30 @@ class Simulation():
                 i.velocityX *= -1
             if (((i.positionY > diff) and (i.velocityY > 0)) or ((i.positionY < -diff) and (i.velocityY < 0))):
                 i.velocityY *= -1
+
+
+    def newWallCollision(self):
+
+        wallsVectors = [[0,1],[-1,0],[0,-1],[1,0]]
+        midWall = [1, 1, -1, -1]
+
+        # walls mid points, selected as 'some point on the wall' from geometrical definition are -1 * the corresponding wall vector
+
+        for i in self.particles:
+            for index in range(len(wallsVectors)):
+                # include radius of particle
+                # include double wall collisions
+                tc = (midWall[index]*np.dot((self.meanFP,self.meanFP),wallsVectors[index]) - np.dot((i.positionX,i.positionY),wallsVectors[index]))/np.dot((i.velocityX,i.velocityY),wallsVectors[index])
+
+                if (tc < self.dt) and (tc > 0):
+                    i.positionX += i.velocityX * tc
+                    i.positionY += i.velocityY * tc
+                    if (index == 0) or (index == 2):
+                        i.velocityY *= -1
+                    if (index == 1 or index == 3):
+                        i.velocityX *= -1
+
+
 
 
     def velocityCalculation(self,vx,vy,rx,ry,i,j):
@@ -302,7 +326,7 @@ class Simulation():
 
 
 # initialise the object
-simulation = Simulation()
+# simulation = Simulation()
 
 
-simulation.advance()
+# simulation.advance()
