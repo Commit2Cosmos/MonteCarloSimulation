@@ -122,16 +122,26 @@ class Simulation():
                 tcList.append(tc)
 
             sortedTc = sorted(tcList)
+            # time left in a timestep
+            step = self.dt
+
+            
+                    
 
             for t in sortedTc:
-                if (t < self.dt) and (t > 0):
+                
+                if (t < step) and (t > 0):
+
                     i.positionX += i.velocityX * t
                     i.positionY += i.velocityY * t
-                    
-                    if tcList.index(t) == 0 or :
+
+                    step -= t
+
+                    if tcList.index(t) == 0 or tcList.index(t) == 2:
                         i.velocityY *= -1
-                    if (index == 1 or index == 3):
+                    if tcList.index(t) == 1 or tcList.index(t) == 3:
                         i.velocityX *= -1
+
 
             i.positionY += i.velocityY * (self.dt - tc)
             i.positionX += i.velocityX * (self.dt - tc)
