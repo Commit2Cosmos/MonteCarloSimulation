@@ -13,6 +13,7 @@ simulation = Simulation()
 
 fig, (ax, ax2) = plt.subplots(1,2, gridspec_kw={'width_ratios': [7, 4]})
 
+# change!!!!!
 vs = np.linspace(0,simulation.maxRS/2 + 100,20)
 
 scatter = ax.scatter([],[], s=4)
@@ -42,5 +43,5 @@ def render(i):
     scatter.set_color(simulation.getColor())
     return (scatter, *bar.patches)
 
-anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(120), blit = True, repeat = True)
+anim = FuncAnimation(fig, render, init_func=initial, interval=200, frames=range(120), blit = True, repeat = True)
 plt.show()

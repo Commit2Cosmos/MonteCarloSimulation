@@ -9,7 +9,7 @@ from Particles import Particle
 
 class Simulation():
 
-    def __init__(self, N = 2, dt = 1E-10, nd = 2.7E25, maxRS = 2000, time = 0., temp=100):
+    def __init__(self, N = 1, dt = 0.5E-9, nd = 2.7E25, maxRS = 2000, time = 0., temp=100):
 
         self.N, self.dt, self.nd, self.maxRS, self.time, self.temp = N, dt, nd, maxRS, time, temp
 
@@ -51,8 +51,8 @@ class Simulation():
         # self.wallCollision()
         self.newWallCollision()
         # self.particleCollisionClassical()
-        self.particleCollisionMC()
-        self.eulerCromer()
+        # self.particleCollisionMC()
+        # self.eulerCromer()
         self.saveInfo()
 
 
@@ -118,33 +118,64 @@ class Simulation():
             for index in range(len(wallsVectors)):
                 # include radius of particle
                 # include double wall collisions
+
+                # always 2 positive & 2 negative values for tc
                 tc = (midWall[index]*np.dot((self.meanFP,self.meanFP),wallsVectors[index]) - np.dot((i.positionX,i.positionY),wallsVectors[index]))/np.dot((i.velocityX,i.velocityY),wallsVectors[index])
-                tcList.append(tc)
+                if (tc > 0) and (tc <= self.dt):
+                    tcList.append([index,tc])
 
-            sortedTc = sorted(tcList)
-            # time left in a timestep
-            step = self.dt
-
+            print(tcList)
             
-                    
-
-            for t in sortedTc:
-                
-                if (t < step) and (t > 0):
-
-                    i.positionX += i.velocityX * t
-                    i.positionY += i.velocityY * t
-
-                    step -= t
-
-                    if tcList.index(t) == 0 or tcList.index(t) == 2:
-                        i.velocityY *= -1
-                    if tcList.index(t) == 1 or tcList.index(t) == 3:
-                        i.velocityX *= -1
+            if len(tcList) == 0:
+                i.positionX += i.velocityX * self.dt
+                i.positionY += i.velocityY * self.dt
 
 
-            i.positionY += i.velocityY * (self.dt - tc)
-            i.positionX += i.velocityX * (self.dt - tc)
+            if len(tcList) == 1:
+                print(1)
+                i.positionX += i.velocityX * tcList[0][1]
+                i.positionY += i.velocityY * tcList[0][1]
+
+                if tcList[0][0] == 0 or tcList[0][0] == 2:
+                    i.velocityY *= -1
+                if tcList[0][0] == 1 or tcList[0][0] == 3:
+                    i.velocityX *= -1
+
+                t = self.dt - tcList[0][1]
+
+                i.positionY += i.velocityY * t
+                i.positionX += i.velocityX * t
+
+
+            if len(tcList) == 2:
+                print(2)
+                sortedTc = sorted(tcList)
+                i.positionX += i.velocityX * sortedTc[0][1]
+                i.positionY += i.velocityY * sortedTc[0][1]
+
+                if sortedTc[0][0] == 0 or sortedTc[0][0] == 2:
+                    i.velocityY *= -1
+                if sortedTc[0][0] == 1 or sortedTc[0][0] == 3:
+                    i.velocityX *= -1
+
+                t = self.dt - sortedTc[0][1]
+
+                newTc = sortedTc[1][1] - sortedTc[0][1]
+
+                i.positionX += i.velocityX * newTc
+                i.positionY += i.velocityY * newTc
+
+                if sortedTc[1][0] == 0 or sortedTc[1][0] == 2:
+                    i.velocityY *= -1
+                if sortedTc[1][0] == 1 or sortedTc[1][0] == 3:
+                    i.velocityX *= -1
+
+                # same as self.dt - tcList[1][1]
+                t -= newTc
+
+                i.positionY += i.velocityY * t
+                i.positionX += i.velocityX * t
+
 
 
 

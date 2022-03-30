@@ -1,11 +1,11 @@
 from Simulation import Simulation
 import numpy as np
 
-sim = Simulation(2,0.1)
+sim = Simulation(1,0.1)
 sim.meanFP = 1
 
 p1 = sim.particles[0]
-p2 = sim.particles[1]
+# p2 = sim.particles[1]
 
 
 # tests two particle collision head on
@@ -24,7 +24,11 @@ def test_headOn():
 
 def test_wallCollision():
         
-        
+        p1.positionX, p1.positionY = 0.7 , -0.6
+        p1.velocityX, p1.velocityY = 1, -1
+        sim.dt = 0.5
+        sim.newWallCollision()
+        print(p1.positionX, p1.positionY, p1.velocityX, p1.velocityY)
 
 
 test_wallCollision()

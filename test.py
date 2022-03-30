@@ -1,5 +1,6 @@
-y = [1,2,3]
+test = {}
 
-y[0] = 4
+test['helo'] = 2
+test[4] = 'no'
 
-print(y[0])
+print(test)
