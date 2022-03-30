@@ -42,5 +42,5 @@ def render(i):
     scatter.set_color(simulation.getColor())
     return (scatter, *bar.patches)
 
-anim = FuncAnimation(fig, render, init_func=initial, interval=500, frames=range(120), blit = True, repeat = True)
+anim = FuncAnimation(fig, render, init_func=initial, interval=1/30, frames=range(120), blit = True, repeat = True)
 plt.show()

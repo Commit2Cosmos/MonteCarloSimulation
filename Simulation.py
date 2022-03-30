@@ -9,7 +9,7 @@ from Particles import Particle
 
 class Simulation():
 
-    def __init__(self, N = 100, dt = 1E-10, nd = 2.7E25, maxRS = 2000, time = 0., temp=300):
+    def __init__(self, N = 2, dt = 1E-10, nd = 2.7E25, maxRS = 2000, time = 0., temp=100):
 
         self.N, self.dt, self.nd, self.maxRS, self.time, self.temp = N, dt, nd, maxRS, time, temp
 
@@ -48,7 +48,8 @@ class Simulation():
         if self.time == 0:
             self.saveInfo()
         self.incrementTime()
-        self.wallCollision()
+        # self.wallCollision()
+        self.newWallCollision()
         # self.particleCollisionClassical()
         self.particleCollisionMC()
         self.eulerCromer()
@@ -108,21 +109,32 @@ class Simulation():
         midWall = [1, 1, -1, -1]
 
         # walls mid points, selected as 'some point on the wall' from geometrical definition are -1 * the corresponding wall vector
+        # 1 collision with each wall for 1 particle at a timestep only
 
         for i in self.particles:
+
+            tcList = []
+
             for index in range(len(wallsVectors)):
                 # include radius of particle
                 # include double wall collisions
                 tc = (midWall[index]*np.dot((self.meanFP,self.meanFP),wallsVectors[index]) - np.dot((i.positionX,i.positionY),wallsVectors[index]))/np.dot((i.velocityX,i.velocityY),wallsVectors[index])
+                tcList.append(tc)
 
-                if (tc < self.dt) and (tc > 0):
-                    i.positionX += i.velocityX * tc
-                    i.positionY += i.velocityY * tc
-                    if (index == 0) or (index == 2):
+            sortedTc = sorted(tcList)
+
+            for t in sortedTc:
+                if (t < self.dt) and (t > 0):
+                    i.positionX += i.velocityX * t
+                    i.positionY += i.velocityY * t
+                    
+                    if tcList.index(t) == 0 or :
                         i.velocityY *= -1
                     if (index == 1 or index == 3):
                         i.velocityX *= -1
 
+            i.positionY += i.velocityY * (self.dt - tc)
+            i.positionX += i.velocityX * (self.dt - tc)
 
 
 

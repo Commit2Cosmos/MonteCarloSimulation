@@ -1,4 +1,12 @@
-i = 3
+from nis import match
+from unittest import case
 
-if i == 1 or 4:
-    print('yes')
+
+i = [-4.43132432, 0, 34.4523, -2.3445]
+y = sorted(i)
+print(i)
+
+def func(ar):
+    match ar:
+        case 0:
+            return 1

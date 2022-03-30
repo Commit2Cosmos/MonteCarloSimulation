@@ -24,27 +24,7 @@ def test_headOn():
 
 def test_wallCollision():
         
-        p1.positionX, p1.positionY = -0.81, 0
-        p1.velocityX, p1.velocityY = -1, 0
-        p1.mass = 1
-        p1.radius = 0
-
-        wallsVectors = [[-1,0],[1,0]]
-        midWall = [1,-1]
-
-        for j in range(6):
-                tc = round((midWall[1]*np.dot((sim.meanFP,sim.meanFP),wallsVectors[1]) - np.dot((p1.positionX,p1.positionY),wallsVectors[1]))/np.dot((p1.velocityX,p1.velocityY),wallsVectors[1]),3)
-                # (1) - (p1.positionX)/(p1.velocityX)
-                
-                if (tc < sim.dt) and (tc > 0):
-                        print('yes')
-                        p1.positionX += p1.velocityX * tc
-                        p1.velocityX *= -1
-                        p1.positionX += p1.velocityX * (sim.dt - tc)
-
-                
-                sim.eulerCromer()
-                print('position: ' + str(p1.positionX))
+        
 
 
 test_wallCollision()
