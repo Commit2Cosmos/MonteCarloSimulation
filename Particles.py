@@ -1,19 +1,18 @@
 import numpy as np
+# Fixing random state for reproducibility
+np.random.seed(4)
+import scipy.constants as const
 
 
-# Creating a Particle class; all particles will be instances of this class with default properties
-
+# all particles will be instances of the Particle class with default properties
 
 class Particle():
 
-    # constructor
-    # acceleration = np.zeros(2),
-    def __init__(self, position = np.zeros(2), velocity = np.ones(2), mass = 1, radius = 0.5):
-        
-        self.position = position
-        self.velocity = velocity
-        # self.acceleration = acceleration
+    def __init__(self, id, positionX = 0. , positionY = 0. , velocityX = 1. , velocityY = 1. , mass = 4.65E-26, radius = 1.55E-10, color = 'black'):
+
+        self.id = id
+        self.positionX, self.positionY = positionX, positionY
+        self.velocityX, self.velocityY = velocityX, velocityY
         self.mass = mass
         self.radius = radius
-
-# add children to create particles of different mass
+        self.color = color
