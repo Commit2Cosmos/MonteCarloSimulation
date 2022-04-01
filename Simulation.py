@@ -9,7 +9,7 @@ from Particles import Particle
 
 class Simulation():
 
-    def __init__(self, N = 1, dt = 0.5E-9, nd = 2.7E25, maxRS = 2000, time = 0., temp=100):
+    def __init__(self, N = 1, dt = 0.5E-10, nd = 2.7E25, maxRS = 2000, time = 0., temp=300):
 
         self.N, self.dt, self.nd, self.maxRS, self.time, self.temp = N, dt, nd, maxRS, time, temp
 
@@ -43,19 +43,18 @@ class Simulation():
 
 
     def advance(self):
+        # run either wallCollision + Cromer or newWallCollision
         """Calls the necessary functions to run the simulation for one timestep
     	"""
         if self.time == 0:
             self.saveInfo()
         self.incrementTime()
         # self.wallCollision()
+        # self.eulerCromer()
         self.newWallCollision()
         # self.particleCollisionClassical()
         # self.particleCollisionMC()
-        # self.eulerCromer()
-        self.saveInfo()
-
-
+        # self.saveInfo()
 
 
 
@@ -125,7 +124,7 @@ class Simulation():
                     tcList.append([index,tc])
 
             print(tcList)
-            
+
             if len(tcList) == 0:
                 i.positionX += i.velocityX * self.dt
                 i.positionY += i.velocityY * self.dt
@@ -196,11 +195,11 @@ class Simulation():
         m = i.mass + j.mass
         mmag = (m * mag)
 
-
         i.velocityX -= 2*j.mass*inner*rx/mmag
         i.velocityY -= 2*j.mass*inner*ry/mmag
         j.velocityX += 2*i.mass*inner*rx/mmag
         j.velocityY += 2*i.mass*inner*ry/mmag
+
 
 
     def particleCollisionClassical(self):
@@ -213,7 +212,7 @@ class Simulation():
                 # check so particle doesn't collide with itself & if particle already collided in current iteration
                 if ((i == j) or (i.id in collided or j.id in collided)):
                     continue
-                
+
                 rx = i.positionX - j.positionX
                 ry = i.positionY - j.positionY
 
@@ -312,7 +311,6 @@ class Simulation():
         return np.array(colors)
 
 
-    # returns two arrays of particles' x and y positions at current timestep
     def getPositions(self):
         """Return the position of each particle
 

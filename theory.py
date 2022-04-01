@@ -9,12 +9,13 @@ nd = 2.7E25
 r = 1.55E-10
 
 # av rel speed = sqrt(2) * av speed
+# ISSUE WITH UPPER EQ!!!!
 
 
 def averageRelativeSpeed():
     
     avRelSpeed = (16*const.k*T/(const.pi*m))**0.5
-    print(avRelSpeed)
+    print('avRel: ' + str(avRelSpeed))
 
     return avRelSpeed
 
@@ -30,9 +31,7 @@ def averageCollisionFrequency():
     
     avRelSpeed = averageRelativeSpeed()
     fre = avRelSpeed * nd**2 * const.pi * (2*r)**2/2
-    # print('collision frequency: ' + str(fre))
-
-    print(fre * FP)
+    print('collision frequency: ' + str(fre))
 
     return fre
 
@@ -45,7 +44,10 @@ def meanSpeed():
 
         :return: Mean particle speed
     """
+    speed = np.sqrt(2.0*const.k*T/m)*spec.gamma(1.5)
+    print(speed)
+    return speed
 
-    return np.sqrt(2.0*const.k*T/m)*spec.gamma(1.5)
-
-averageCollisionFrequency()
+# averageCollisionFrequency()
+averageRelativeSpeed()
+meanSpeed()
