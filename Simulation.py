@@ -42,7 +42,7 @@ class Simulation():
 
 
     def advance(self):
-        # run either wallCollision + Cromer or newWallCollision
+        # run either wallCollision + Cromer or newWallCollision // particleCollisionClassical or particleCollisionMC
         """Calls the necessary functions to run the simulation for one timestep
     	"""
         if self.time == 0:

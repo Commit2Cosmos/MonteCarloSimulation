@@ -21,7 +21,7 @@ How big is the box? IE cannot be greater than some limit, as not realistic for p
 
 
 
-Image.io for visualisation or matplotlib
+Image.io for visualisation
 
 E(t) graph constant CHECK macroscopic measurable parameters (such as Energy, temperature, pressure)
 
@@ -69,6 +69,5 @@ n (number density) = (N / A) * F_N
 ToDo:
 
 -Knudsen number
--Tests
 -Collision frequency comparison: theory vs mine discrepancy !!!!!!!!!!!!
 -Change mean free path
