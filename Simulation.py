@@ -1,23 +1,22 @@
 import sys
 sys.dont_write_bytecode = True
 import numpy as np
-import scipy.special as spec
 import scipy.constants as const
 from Particles import Particle
 
 
 
 class Simulation():
-    # RS = 1347
-    def __init__(self, N = 100, dt = 1E-10, p = 1E5, maxRS = 1347, time = 0., T=293):
+    # check maxRS value 1347
+    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 200, time = 0., T=293, factor=1):
 
-        self.N, self.dt, self.p, self.maxRS, self.time, self.T = N, dt, p, maxRS, time, T
+        self.N, self.dt, self.p, self.maxRS, self.time, self.T, self.factor = N, dt, p, maxRS, time, T, factor
 
         self.particles = [Particle(i) for i in range(self.N)]
 
         self.nd = self.p / (const.k * self.T)
         print('nd: ' + str(self.nd))
-        self.sigma = const.pi * (2*self.particles[0].radius)**2
+        self.sigma = const.pi * (2 * self.particles[0].radius)**2
         print('sigma: ' + str(self.sigma))
         self.meanFP = 1/(np.sqrt(2) * self.sigma * self.nd)
         print('meanFP: ' + str(self.meanFP))
@@ -28,6 +27,8 @@ class Simulation():
 
         self.uniformPosition()
         self.normalVelocity()
+
+        self.collisions = []
 
 
 
@@ -49,9 +50,9 @@ class Simulation():
         # run either wallCollision + Cromer or newWallCollision // particleCollisionClassical or particleCollisionMC
         """Calls the necessary functions to run the simulation for one timestep
     	"""
-        if self.time == 0:
-            self.saveInfo()
-        self.incrementTime()
+        # if self.time == 0:
+        #     self.saveInfo()
+        # self.incrementTime()
         # self.wallCollision()
         # self.eulerCromer()
         self.newWallCollision()
@@ -228,7 +229,7 @@ class Simulation():
 
 
 
-    # MONTE CARLO METHOD #####################################################
+##### MONTE CARLO METHOD #####################################################
 
     def numberOfPairs(self):
         """Calculate the number of collision pairs in 1 timestep (calculated once at the star of the simulation as the value stays constant throughout)
@@ -259,10 +260,8 @@ class Simulation():
     def particleCollisionMC(self):
         """Implementation of the Monte-Carlo method based on acceptance/rejection procedure
 	    """
-        
-
         count = 0
-        while count < int(self.pairs):
+        for dummy in range(int(self.pairs)):
             first, second = self.chooseRandomParticles()
             i, j = self.particles[first], self.particles[second]
 
@@ -275,24 +274,26 @@ class Simulation():
             # resets the maximum probability value if a higher one was encountered
             if ratio > 1:
                 self.maxRS = relSpeed
-                self.pairs = self.numberOfPairs()
                 print('!!new maxRS!!: ' + str(self.maxRS))
+                self.pairs = self.numberOfPairs()
 
             # resolves the collision classically if the ratio of current and maximum collision probabilities is greater than a random number between 0 and 1
             if ratio > np.random.random(1)[0]:
                 rx = i.positionX - j.positionX
                 ry = i.positionY - j.positionY
-                print('!collision!')
-                
+                # print('!collision!')
+                count += 1
+
                 self.velocityCalculation(vx,vy,rx,ry,i,j)
-            count += 1
+        self.collisions.append(count)
+        print('collisions detected: ' + str(count))
 
 
 
 
 
 
-    # PARTICLES' PARAMETERS ##################################
+##### PARTICLES' PARAMETERS ##################################
 
 
     def getColor(self):
@@ -341,7 +342,7 @@ class Simulation():
 
 
 
-    # CALCULATE PROPERTIES OF SIMULATION #############################
+##### CALCULATE PROPERTIES OF SIMULATION #############################
 
     def calculateRMSSquared(self):
         """Calculate an average rms speed squared value
@@ -366,11 +367,11 @@ class Simulation():
 		    :return: Temperature of the system [K]
 	    """
         rmsSquared = self.calculateRMSSquared()
-        print('rms: ' + str(np.sqrt(rmsSquared)))
+        # print('rms: ' + str(np.sqrt(rmsSquared)))
 
         # average mass of all particles
         T = rmsSquared * self.particles[0].mass / (2 * const.k)
-        print('T: ' + str(T))
+        # print('T: ' + str(T))
         return T
 
 

@@ -15,11 +15,6 @@ Good Monte Carlo:
 Continuum description not accurate if Knudsen number (Kn) > 1/10
 
 
-Estimate collision rate
-
-How big is the box? IE cannot be greater than some limit, as not realistic for particles to interact at such distance => split to more squares?
-
-
 
 Image.io for visualisation
 
@@ -70,3 +65,12 @@ ToDo:
 
 -Knudsen number
 -Split into Areas !
+
+
+Global tests:
+
+-Collision frequency matching
+-Constant Energy, check theory vs actual: temperature, rms & average speed
+-Evolution of speed distribution w temperature (with various initial conditions)
+-Whether speed distribution matches values of rms, mean and most probable speeds
+-How the number of areas alters accuracy [How big is the box? i.e. cannot be greater than some limit, as not realistic for particles to interact at such distance => split to more squares?]

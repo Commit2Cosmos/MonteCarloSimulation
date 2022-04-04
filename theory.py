@@ -15,7 +15,7 @@ nd = sim.nd
 r = sim.particles[0].radius
 FN = sim.FN
 
-
+ 
 def rmsSpeed():
     """Calculate the root-mean-square speed of particles
 
@@ -23,7 +23,7 @@ def rmsSpeed():
 
         :return: Root-mean-square particle speed (m/s)
     """
-    rmsSpeed = np.sqrt((3*const.R*T)/(m))
+    rmsSpeed = np.sqrt((2 * const.k * T)/(m))
     return rmsSpeed
 
 
@@ -34,7 +34,7 @@ def mostProbableSpeed():
 
         :return: Most probable particle speed (m/s)
     """
-    speed = np.sqrt((2 * const.k * T)/m)
+    speed = np.sqrt((const.k * T)/m)
     return speed
 
 
@@ -45,7 +45,8 @@ def meanSpeed():
 
         :return: Mean particle speed (m/s)
     """
-    speed = np.sqrt((8 * const.k * T)/(const.pi * m))
+    speed = np.sqrt((const.k * T * const.pi)/(2 * m))
+    # print('meanSpeed: ' + str(speed))
     return speed
 
 
@@ -66,18 +67,28 @@ def totalCollisionNumber():
 
     Args:
 
-        :return: The average number of collisions in a system per second per unit volume
+        :return: The average number of collisions in a system per second per meter squared
     """
     colNum = averageCollisionFrequency() * 1/2 * nd
-    print('Total coll: ' + str(colNum))
+    # print('Total coll: ' + str(colNum))
     return colNum
 
 
-print(totalCollisionNumber() * dt * (2*FP)**2 / FN)
+# print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * (2 * FP)**2 / FN))
+print(meanSpeed())
+
+
+# # to choose initial maxRS
 # print(meanSpeed() * np.sqrt(2) * 2)
-# averageCollisionFrequency()
 
 
+# for i in range(1000):
+#     sim.advance()
+
+# tot = 0
+# for i in sim.collisions:
+#     tot += i
+# print(tot/len(sim.collisions))
 
 sim.advance()
 

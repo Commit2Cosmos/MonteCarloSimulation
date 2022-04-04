@@ -1,6 +1,9 @@
-test = {}
+count = 10
 
-test['helo'] = 2
-test[4] = 'no'
+for i in range(count):
+    print(i)
+    if i == 5:
+        count = 7
 
-print(test)
+for i in range(count):
+    print(i)
