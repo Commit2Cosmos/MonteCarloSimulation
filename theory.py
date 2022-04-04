@@ -1,40 +1,41 @@
+import sys
+sys.dont_write_bytecode = True
 import scipy.constants as const
-import scipy.special as spec
 import numpy as np
+from Simulation import Simulation
 
-T = 300
-m = 4.65E-26
-FP = 4.9071E-7
-nd = 2.7E25
-r = 1.55E-10
+sim = Simulation()
 
-# av rel speed = sqrt(2) * av speed
-# ISSUE WITH UPPER EQ!!!!
-
-
-def averageRelativeSpeed():
-    
-    avRelSpeed = (16*const.k*T/(const.pi*m))**0.5
-    print('avRel: ' + str(avRelSpeed))
-
-    return avRelSpeed
+dt = sim.dt
+N = sim.N
+T = sim.T
+m = sim.particles[0].mass
+FP = sim.meanFP
+nd = sim.nd
+r = sim.particles[0].radius
+FN = sim.FN
 
 
-
-def averageCollisionFrequency():
-    """Calculate the average total collision frequency per unit volume
+def rmsSpeed():
+    """Calculate the root-mean-square speed of particles
 
     Args:
 
-        :return: The average number of collisions in a system per second
+        :return: Root-mean-square particle speed (m/s)
     """
-    
-    avRelSpeed = averageRelativeSpeed()
-    fre = avRelSpeed * nd**2 * const.pi * (2*r)**2/2
-    print('collision frequency: ' + str(fre))
+    rmsSpeed = np.sqrt((3*const.R*T)/(m))
+    return rmsSpeed
 
-    return fre
 
+def mostProbableSpeed():
+    """Calculate the most probable particle speed
+
+    Args:
+
+        :return: Most probable particle speed (m/s)
+    """
+    speed = np.sqrt((2 * const.k * T)/m)
+    return speed
 
 
 def meanSpeed():
@@ -42,12 +43,71 @@ def meanSpeed():
 
     Args:
 
-        :return: Mean particle speed
+        :return: Mean particle speed (m/s)
     """
-    speed = np.sqrt(2.0*const.k*T/m)*spec.gamma(1.5)
-    print(speed)
+    speed = np.sqrt((8 * const.k * T)/(const.pi * m))
     return speed
 
+
+def averageCollisionFrequency():
+    """Calculate the average collision frequency of 1 particle
+
+    Args:
+
+        :return: The average number of collisions in a system per second per unit volume
+    """
+    Z = meanSpeed()/FP
+    # print('collision frequency: ' + str(Z))
+    return Z
+
+
+def totalCollisionNumber():
+    """Calculate the average total number of collisions per unit volume and time
+
+    Args:
+
+        :return: The average number of collisions in a system per second per unit volume
+    """
+    colNum = averageCollisionFrequency() * 1/2 * nd
+    print('Total coll: ' + str(colNum))
+    return colNum
+
+
+print(totalCollisionNumber() * dt * (2*FP)**2 / FN)
+# print(meanSpeed() * np.sqrt(2) * 2)
 # averageCollisionFrequency()
-averageRelativeSpeed()
-meanSpeed()
+
+
+
+sim.advance()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# CHECK FOR VALIDITY
+# def averageCollisionFrequency():
+#     """Calculate the average total collision frequency per unit volume
+
+#     Args:
+
+#         :return: The average number of collisions in a system per second per unit volume
+#     """
+#     avRelSpeed = meanSpeed() * np.sqrt(2)
+#     fre = avRelSpeed * nd**2 * const.pi * 2 * (2*r)**2 * dt
+#     # N**2 * relSpeed * dt * (sigma * FN) / V
+#     print('collision frequency: ' + str(fre))
+#     return fre

@@ -8,17 +8,21 @@ from Particles import Particle
 
 
 class Simulation():
+    # RS = 1347
+    def __init__(self, N = 100, dt = 1E-10, p = 1E5, maxRS = 1347, time = 0., T=293):
 
-    def __init__(self, N = 1, dt = 0.5E-10, nd = 2.7E25, maxRS = 2000, time = 0., temp=300):
-
-        self.N, self.dt, self.nd, self.maxRS, self.time, self.temp = N, dt, nd, maxRS, time, temp
+        self.N, self.dt, self.p, self.maxRS, self.time, self.T = N, dt, p, maxRS, time, T
 
         self.particles = [Particle(i) for i in range(self.N)]
 
-        self.sigma = const.pi * self.particles[0].radius**2 * 4
-        self.meanFP = 1/(self.sigma*nd)
+        self.nd = self.p / (const.k * self.T)
+        print('nd: ' + str(self.nd))
+        self.sigma = const.pi * (2*self.particles[0].radius)**2
+        print('sigma: ' + str(self.sigma))
+        self.meanFP = 1/(np.sqrt(2) * self.sigma * self.nd)
         print('meanFP: ' + str(self.meanFP))
-        self.FN = self.nd * self.meanFP**2 / self.N
+
+        self.FN = self.nd * (2 * self.meanFP)**2 / self.N
         print('FN: ' + str(self.FN))
         self.pairs = self.numberOfPairs()
 
@@ -29,7 +33,7 @@ class Simulation():
 
     def uniformPosition(self):
         for i in self.particles:
-            i.positionX, i.positionY = 2 * self.meanFP * (np.random.rand(1,2)[0]-0.5)
+            i.positionX, i.positionY = 4 * self.meanFP * (np.random.rand(1,2)[0]-0.5)
 
     def uniformVelocity(self):
         for i in self.particles:
@@ -37,7 +41,7 @@ class Simulation():
 
     def normalVelocity(self):
         for i in self.particles:
-            i.velocityX, i.velocityY = np.random.normal(0 , np.sqrt(const.k*self.temp/i.mass) , size=(1,2))[0]
+            i.velocityX, i.velocityY = np.random.normal(0 , np.sqrt(const.k*self.T/i.mass) , size=(1,2))[0]
 
 
 
@@ -52,7 +56,7 @@ class Simulation():
         # self.eulerCromer()
         self.newWallCollision()
         # self.particleCollisionClassical()
-        # self.particleCollisionMC()
+        self.particleCollisionMC()
         # self.saveInfo()
 
 
@@ -82,8 +86,8 @@ class Simulation():
             time = self.time
             file = open('data.csv','a')
             file.write('\n\nTime: ' + str(time) + '\n')
-            temp = self.calculateTemp()
-            file.write('Temperature: ' + str(temp))
+            T = self.calculateTemperature()
+            file.write('T: ' + str(T))
             file.close()
 
 
@@ -122,15 +126,12 @@ class Simulation():
                 if (tc > 0) and (tc <= self.dt):
                     tcList.append([index,tc])
 
-            print(tcList)
-
             if len(tcList) == 0:
                 i.positionX += i.velocityX * self.dt
                 i.positionY += i.velocityY * self.dt
 
 
             if len(tcList) == 1:
-                print(1)
                 i.positionX += i.velocityX * tcList[0][1]
                 i.positionY += i.velocityY * tcList[0][1]
 
@@ -146,7 +147,6 @@ class Simulation():
 
 
             if len(tcList) == 2:
-                print(2)
                 sortedTc = sorted(tcList)
                 i.positionX += i.velocityX * sortedTc[0][1]
                 i.positionY += i.velocityY * sortedTc[0][1]
@@ -176,6 +176,29 @@ class Simulation():
 
 
 
+    def particleCollisionClassical(self):
+        """Check for and resolve a classical two particle collision (ignores > 2 particles collisions in one timestep)
+	    """
+        collided = []
+        for i in self.particles:
+            for j in self.particles:
+
+                # check so particle doesn't collide with itself & if particle already collided in current iteration
+                if ((i == j) or (i.id in collided or j.id in collided)):
+                    continue
+
+                rx = i.positionX - j.positionX
+                ry = i.positionY - j.positionY
+
+                if np.dot((rx,ry),(rx,ry)) <= (i.radius + j.radius)**2:
+                    vx = i.velocityX - j.velocityX
+                    vy = i.velocityY - j.velocityY
+
+                    self.velocityCalculation(vx,vy,rx,ry,i,j)
+
+                    collided.append(i.id)
+                    collided.append(j.id)
+
 
     def velocityCalculation(self,vx,vy,rx,ry,i,j):
         """Utilise equations for angle-free representation of an elastic collision to resolve velocities of particles after the collision
@@ -201,31 +224,6 @@ class Simulation():
 
 
 
-    def particleCollisionClassical(self):
-        """Check for and resolve a classical two particle collision (ignores > 2 particles collisions in one timestep)
-	    """
-        collided = []
-        for i in self.particles:
-            for j in self.particles:
-
-                # check so particle doesn't collide with itself & if particle already collided in current iteration
-                if ((i == j) or (i.id in collided or j.id in collided)):
-                    continue
-
-                rx = i.positionX - j.positionX
-                ry = i.positionY - j.positionY
-
-                if np.dot((rx,ry),(rx,ry)) <= (i.radius + j.radius)**2:
-                    vx = i.velocityX - j.velocityX
-                    vy = i.velocityY - j.velocityY
-
-                    self.velocityCalculation(vx,vy,rx,ry,i,j)
-
-                    collided.append(i.id)
-                    collided.append(j.id)
-
-
-
 
 
 
@@ -239,7 +237,7 @@ class Simulation():
 
             :return: Collision pairs number
 	    """
-        nP = (1/2 * self.N * (self.N - 1) * self.FN * (self.maxRS * const.pi * self.particles[0].radius**2) * self.dt) / (4 * self.meanFP**2)
+        nP = (1/2 * self.N * (self.N - 1) * self.FN * (self.maxRS * self.sigma) * self.dt) / (2*self.meanFP)**2
         print('pairs: ' + str(nP))
         return nP
 
@@ -360,7 +358,7 @@ class Simulation():
         return rmsSquared
 
 
-    def calculateTemp(self):
+    def calculateTemperature(self):
         """Calculate the temperature of the system from the rms speed value
 
 	    Args:
@@ -368,15 +366,30 @@ class Simulation():
 		    :return: Temperature of the system [K]
 	    """
         rmsSquared = self.calculateRMSSquared()
+        print('rms: ' + str(np.sqrt(rmsSquared)))
 
         # average mass of all particles
-        temp = rmsSquared * self.particles[0].mass / (2 * const.k)
-        return temp
+        T = rmsSquared * self.particles[0].mass / (2 * const.k)
+        print('T: ' + str(T))
+        return T
 
+
+    def calculateTotalEnergy(self):
+        ener = 1/2 * self.particles[0].mass * self.calculateMeanSpeed()**2
+        print(ener)
+
+
+    def calculateAverageSpeed(self):
+        totalSpeed = 0
+        for particle in self.particles:
+            speed = np.sqrt(particle.velocityX**2 + particle.velocityY**2)
+            totalSpeed += speed
+        meanSpeed = totalSpeed/self.N
+        print('meanSpeed: ' + str(meanSpeed))
+        return meanSpeed
 
 
 # initialise the object
 # simulation = Simulation()
 
-
-# simulation.advance()
+# simulation.calculateAverageSpeed()

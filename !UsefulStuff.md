@@ -69,5 +69,4 @@ n (number density) = (N / A) * F_N
 ToDo:
 
 -Knudsen number
--Collision frequency comparison: theory vs mine discrepancy !!!!!!!!!!!!
--Change mean free path
+-Split into Areas !
