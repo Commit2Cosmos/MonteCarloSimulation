@@ -34,8 +34,9 @@ def mostProbableSpeed():
 
         :return: Most probable particle speed (m/s)
     """
-    speed = np.sqrt((const.k * T)/m)
-    return speed
+    probSpeed = np.sqrt((const.k * T)/m)
+    # print('probSpeed: ' + str(probSpeed))
+    return probSpeed
 
 
 def meanSpeed():
@@ -45,9 +46,9 @@ def meanSpeed():
 
         :return: Mean particle speed (m/s)
     """
-    speed = np.sqrt((const.k * T * const.pi)/(2 * m))
-    # print('meanSpeed: ' + str(speed))
-    return speed
+    meanSpeed = np.sqrt((const.k * T * const.pi)/(2 * m))
+    # print('meanSpeed: ' + str(meanSpeed))
+    return meanSpeed
 
 
 def averageCollisionFrequency():
@@ -91,34 +92,3 @@ print(meanSpeed())
 # print(tot/len(sim.collisions))
 
 sim.advance()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# CHECK FOR VALIDITY
-# def averageCollisionFrequency():
-#     """Calculate the average total collision frequency per unit volume
-
-#     Args:
-
-#         :return: The average number of collisions in a system per second per unit volume
-#     """
-#     avRelSpeed = meanSpeed() * np.sqrt(2)
-#     fre = avRelSpeed * nd**2 * const.pi * 2 * (2*r)**2 * dt
-#     # N**2 * relSpeed * dt * (sigma * FN) / V
-#     print('collision frequency: ' + str(fre))
-#     return fre

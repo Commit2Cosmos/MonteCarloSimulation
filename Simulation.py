@@ -8,7 +8,7 @@ from Particles import Particle
 
 class Simulation():
     # check maxRS value 1347
-    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 200, time = 0., T=293, factor=1):
+    def __init__(self, N = 10, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=293, factor=2):
 
         self.N, self.dt, self.p, self.maxRS, self.time, self.T, self.factor = N, dt, p, maxRS, time, T, factor
 
@@ -20,8 +20,9 @@ class Simulation():
         print('sigma: ' + str(self.sigma))
         self.meanFP = 1/(np.sqrt(2) * self.sigma * self.nd)
         print('meanFP: ' + str(self.meanFP))
+        self.volume = (self.factor * self.meanFP) ** 2
 
-        self.FN = self.nd * (2 * self.meanFP)**2 / self.N
+        self.FN = self.nd * self.volume / self.N
         print('FN: ' + str(self.FN))
         self.pairs = self.numberOfPairs()
 
@@ -34,7 +35,7 @@ class Simulation():
 
     def uniformPosition(self):
         for i in self.particles:
-            i.positionX, i.positionY = 4 * self.meanFP * (np.random.rand(1,2)[0]-0.5)
+            i.positionX, i.positionY = self.factor * self.meanFP * (np.random.rand(1,2)[0]-0.5)
 
     def uniformVelocity(self):
         for i in self.particles:
@@ -52,7 +53,6 @@ class Simulation():
     	"""
         # if self.time == 0:
         #     self.saveInfo()
-        # self.incrementTime()
         # self.wallCollision()
         # self.eulerCromer()
         self.newWallCollision()
@@ -70,19 +70,16 @@ class Simulation():
             i.positionY += i.velocityY * self.dt
 
 
-    def incrementTime(self):
-        """Increment the time every timestep
-	    """
-        self.time = round(self.time + self.dt, 10)
-
 
     def saveInfo(self, tPeriod=1E-10):
-        """Save information about system's parameters to the csv file
+        """Increment the time every timestep & save information about system's parameters to the csv file
 
         Args:
 
             :param float tPeriod: Time period after which the data is saved [s]
 	    """
+        self.time = round(self.time + self.dt, 10)
+
         if (round(self.time % tPeriod, 1) == 0):
             time = self.time
             file = open('data.csv','a')
@@ -110,6 +107,7 @@ class Simulation():
 
         wallsVectors = [[0,1],[-1,0],[0,-1],[1,0]]
         midWall = [1, 1, -1, -1]
+        walls = 1/2 * self.factor * self.meanFP - self.particles[0].radius
 
         # walls mid points, selected as 'some point on the wall' from geometrical definition are -1 * the corresponding wall vector
         # 1 collision with each wall for 1 particle at a timestep only
@@ -123,7 +121,7 @@ class Simulation():
                 # include double wall collisions
 
                 # always 2 positive & 2 negative values for tc
-                tc = (midWall[index]*np.dot((self.meanFP,self.meanFP),wallsVectors[index]) - np.dot((i.positionX,i.positionY),wallsVectors[index]))/np.dot((i.velocityX,i.velocityY),wallsVectors[index])
+                tc = (midWall[index]*np.dot((walls,walls),wallsVectors[index]) - np.dot((i.positionX,i.positionY),wallsVectors[index]))/np.dot((i.velocityX,i.velocityY),wallsVectors[index])
                 if (tc > 0) and (tc <= self.dt):
                     tcList.append([index,tc])
 
@@ -238,7 +236,7 @@ class Simulation():
 
             :return: Collision pairs number
 	    """
-        nP = (1/2 * self.N * (self.N - 1) * self.FN * (self.maxRS * self.sigma) * self.dt) / (2*self.meanFP)**2
+        nP = (1/2 * self.N * (self.N - 1) * self.FN * (self.maxRS * self.sigma) * self.dt) / self.volume
         print('pairs: ' + str(nP))
         return nP
 
@@ -345,22 +343,23 @@ class Simulation():
 ##### CALCULATE PROPERTIES OF SIMULATION #############################
 
     def calculateRMSSquared(self):
-        """Calculate an average rms speed squared value
+        """Calculate actual rms speed squared value
 
 	    Args:
 
 		    :return: The rms speed of the particles [m/s]
-	"""
+	    """
         totalSpeedSquared = 0
         for particle in self.particles:
             speed = particle.velocityX**2 + particle.velocityY**2
             totalSpeedSquared += speed
         rmsSquared = totalSpeedSquared/self.N
+        print('meanSpeed: ' + str(np.sqrt(rmsSquared)))
         return rmsSquared
 
 
     def calculateTemperature(self):
-        """Calculate the temperature of the system from the rms speed value
+        """Calculate actual temperature of the system from the rms speed value
 
 	    Args:
 
@@ -376,11 +375,24 @@ class Simulation():
 
 
     def calculateTotalEnergy(self):
-        ener = 1/2 * self.particles[0].mass * self.calculateMeanSpeed()**2
-        print(ener)
+        """Calculate actual total energy of the system from the rms speed value
+
+	    Args:
+
+		    :return: Total energy of the system [J]
+	    """
+        E = 1/2 * self.particles[0].mass * self.calculateMeanSpeed()**2
+        print(E)
+        return E
 
 
-    def calculateAverageSpeed(self):
+    def calculateMeanSpeed(self):
+        """Calculate actual mean speed value
+
+	    Args:
+
+		    :return: The mean speed of the particles [m/s]
+	    """
         totalSpeed = 0
         for particle in self.particles:
             speed = np.sqrt(particle.velocityX**2 + particle.velocityY**2)
@@ -392,5 +404,3 @@ class Simulation():
 
 # initialise the object
 # simulation = Simulation()
-
-# simulation.calculateAverageSpeed()
