@@ -342,50 +342,6 @@ class Simulation():
 
 ##### CALCULATE PROPERTIES OF SIMULATION #############################
 
-    def calculateRMSSquared(self):
-        """Calculate actual rms speed squared value
-
-	    Args:
-
-		    :return: The rms speed of the particles [m/s]
-	    """
-        totalSpeedSquared = 0
-        for particle in self.particles:
-            speed = particle.velocityX**2 + particle.velocityY**2
-            totalSpeedSquared += speed
-        rmsSquared = totalSpeedSquared/self.N
-        print('meanSpeed: ' + str(np.sqrt(rmsSquared)))
-        return rmsSquared
-
-
-    def calculateTemperature(self):
-        """Calculate actual temperature of the system from the rms speed value
-
-	    Args:
-
-		    :return: Temperature of the system [K]
-	    """
-        rmsSquared = self.calculateRMSSquared()
-        # print('rms: ' + str(np.sqrt(rmsSquared)))
-
-        # average mass of all particles
-        T = rmsSquared * self.particles[0].mass / (2 * const.k)
-        # print('T: ' + str(T))
-        return T
-
-
-    def calculateTotalEnergy(self):
-        """Calculate actual total energy of the system from the rms speed value
-
-	    Args:
-
-		    :return: Total energy of the system [J]
-	    """
-        E = 1/2 * self.particles[0].mass * self.calculateMeanSpeed()**2
-        print(E)
-        return E
-
-
     def calculateMeanSpeed(self):
         """Calculate actual mean speed value
 
@@ -400,6 +356,47 @@ class Simulation():
         meanSpeed = totalSpeed/self.N
         print('meanSpeed: ' + str(meanSpeed))
         return meanSpeed
+
+
+    def calculateRMSSquared(self):
+        """Calculate actual rms speed squared value
+
+	    Args:
+
+		    :return: The rms speed of the particles [m/s]
+	    """
+        totalSpeedSquared = 0
+        for particle in self.particles:
+            speed = particle.velocityX**2 + particle.velocityY**2
+            totalSpeedSquared += speed
+        rmsSquared = totalSpeedSquared/self.N
+        print('rmsSpeed: ' + str(np.sqrt(rmsSquared)))
+        return rmsSquared
+
+
+    def calculateTemperature(self):
+        """Calculate actual temperature of the system from the rms speed value
+
+	    Args:
+
+		    :return: Temperature of the system [K]
+	    """
+        # average mass of all particles
+        T = self.calculateRMSSquared() * self.particles[0].mass / (2 * const.k)
+        # print('T: ' + str(T))
+        return T
+
+
+    def calculateTotalEnergy(self):
+        """Calculate actual total energy of the system from the rms speed value
+
+	    Args:
+
+		    :return: Total energy of the system [J]
+	    """
+        E = 1/2 * self.particles[0].mass * self.calculateMeanSpeed()**2
+        print(E)
+        return E
 
 
 # initialise the object
