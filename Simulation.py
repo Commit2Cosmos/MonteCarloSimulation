@@ -8,7 +8,7 @@ from Particles import Particle
 
 class Simulation():
     # check maxRS value 1347
-    def __init__(self, N = 10, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=293, factor=2):
+    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=293, factor=2):
 
         self.N, self.dt, self.p, self.maxRS, self.time, self.T, self.factor = N, dt, p, maxRS, time, T, factor
 
@@ -90,7 +90,7 @@ class Simulation():
 
 
 
-##### COLLISION MANAGEMENT ###############################################
+##### WALL COLLISION MANAGEMENT ###############################################
 
     def wallCollision(self):
         """Reverse particle's velocity component if collision with the wall is detected
@@ -104,7 +104,8 @@ class Simulation():
 
 
     def newWallCollision(self):
-
+        """Detects and resolves a particle/wall collision ......
+        """
         wallsVectors = [[0,1],[-1,0],[0,-1],[1,0]]
         midWall = [1, 1, -1, -1]
         walls = 1/2 * self.factor * self.meanFP - self.particles[0].radius
@@ -173,7 +174,7 @@ class Simulation():
                 i.positionY += i.velocityY * t
                 i.positionX += i.velocityX * t
 
-
+##### PARTICLE COLLISION MANAGEMANT ##############################################
 
     def particleCollisionClassical(self):
         """Check for and resolve a classical two particle collision (ignores > 2 particles collisions in one timestep)
@@ -383,7 +384,7 @@ class Simulation():
 	    """
         # average mass of all particles
         T = self.calculateRMSSquared() * self.particles[0].mass / (2 * const.k)
-        # print('T: ' + str(T))
+        print('T: ' + str(T))
         return T
 
 
@@ -395,9 +396,13 @@ class Simulation():
 		    :return: Total energy of the system [J]
 	    """
         E = 1/2 * self.particles[0].mass * self.calculateMeanSpeed()**2
-        print(E)
+        # print('E: ' + str(E))
         return E
 
 
 # initialise the object
-# simulation = Simulation()
+simulation = Simulation()
+
+simulation.calculateMeanSpeed()
+# simulation.calculateRMSSquared()
+simulation.calculateTemperature()
