@@ -16,7 +16,7 @@ lim = 1/2 * factor * simulation.meanFP
 
 fig, (ax, ax2) = plt.subplots(1,2, gridspec_kw={'width_ratios': [7, 4]})
 
-vs = np.linspace(0, mostProbableSpeed() * 4, 40)
+vs = np.linspace(0, 4 * mostProbableSpeed(), 40)
 
 scatter = ax.scatter([],[], s=4)
 bar = ax2.bar(vs, [0]*len(vs), width=0.9 * np.gradient(vs), align="edge")

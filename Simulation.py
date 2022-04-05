@@ -85,7 +85,9 @@ class Simulation():
             file = open('data.csv','a')
             file.write('\n\nTime: ' + str(time) + '\n')
             T = self.calculateTemperature()
+            E = self.calculateTotalEnergy()
             file.write('T: ' + str(T))
+            file.write('\nE: ' + str(E))
             file.close()
 
 
@@ -96,7 +98,7 @@ class Simulation():
         """Reverse particle's velocity component if collision with the wall is detected
 	    """
         for i in self.particles:
-            diff = self.meanFP - i.radius
+            diff = (1/2 * self.factor * self.meanFP) - i.radius
             if (((i.positionX > diff) and (i.velocityX > 0)) or ((i.positionX < -diff) and (i.velocityX < 0))):
                 i.velocityX *= -1
             if (((i.positionY > diff) and (i.velocityY > 0)) or ((i.positionY < -diff) and (i.velocityY < 0))):
@@ -108,7 +110,7 @@ class Simulation():
         """
         wallsVectors = [[0,1],[-1,0],[0,-1],[1,0]]
         midWall = [1, 1, -1, -1]
-        walls = 1/2 * self.factor * self.meanFP - self.particles[0].radius
+        toWall = 1/2 * self.factor * self.meanFP - self.particles[0].radius
 
         # walls mid points, selected as 'some point on the wall' from geometrical definition are -1 * the corresponding wall vector
         # 1 collision with each wall for 1 particle at a timestep only
@@ -122,7 +124,7 @@ class Simulation():
                 # include double wall collisions
 
                 # always 2 positive & 2 negative values for tc
-                tc = (midWall[index]*np.dot((walls,walls),wallsVectors[index]) - np.dot((i.positionX,i.positionY),wallsVectors[index]))/np.dot((i.velocityX,i.velocityY),wallsVectors[index])
+                tc = (midWall[index]*np.dot((toWall,toWall),wallsVectors[index]) - np.dot((i.positionX,i.positionY),wallsVectors[index]))/np.dot((i.velocityX,i.velocityY),wallsVectors[index])
                 if (tc > 0) and (tc <= self.dt):
                     tcList.append([index,tc])
 
@@ -292,7 +294,7 @@ class Simulation():
 
 
 
-##### PARTICLES' PARAMETERS ##################################
+##### PARTICLES' PARAMETERS GETTERS##################################
 
 
     def getColor(self):

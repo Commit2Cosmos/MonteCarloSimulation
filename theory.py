@@ -1,4 +1,6 @@
 import sys
+
+from sympy import factor
 sys.dont_write_bytecode = True
 import scipy.constants as const
 import numpy as np
@@ -14,6 +16,7 @@ FP = sim.meanFP
 nd = sim.nd
 r = sim.particles[0].radius
 FN = sim.FN
+volume = sim.volume
 
  
 def rmsSpeed():
@@ -76,7 +79,7 @@ def totalCollisionNumber():
     return colNum
 
 
-# print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * (2 * FP)**2 / FN))
+# print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * volume / FN))
 
 meanSpeed()
 rmsSpeed()
