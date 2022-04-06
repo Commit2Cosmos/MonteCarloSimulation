@@ -27,7 +27,7 @@ def rmsSpeed():
         :return: Root-mean-square particle speed (m/s)
     """
     rmsSpeed = np.sqrt((2 * const.k * T)/(m))
-    print('rmsSpeed: ' + str(rmsSpeed))
+    # print('rmsSpeed: ' + str(rmsSpeed))
     return rmsSpeed
 
 
@@ -51,7 +51,7 @@ def meanSpeed():
         :return: Mean particle speed (m/s)
     """
     meanSpeed = np.sqrt((const.k * T * const.pi)/(2 * m))
-    print('meanSpeed: ' + str(meanSpeed))
+    # print('meanSpeed: ' + str(meanSpeed))
     return meanSpeed
 
 
@@ -79,22 +79,22 @@ def totalCollisionNumber():
     return colNum
 
 
-# print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * volume / FN))
+print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * volume / FN))
 
-meanSpeed()
-rmsSpeed()
+# meanSpeed()
+# rmsSpeed()
 
 
 # # to choose initial maxRS
 # print(meanSpeed() * np.sqrt(2) * 2)
 
 
-# for i in range(1000):
-#     sim.advance()
+for i in range(1000):
+    sim.advance()
 
-# tot = 0
-# for i in sim.collisions:
-#     tot += i
-# print(tot/len(sim.collisions))
+tot = 0
+for i in sim.collisions:
+    tot += i
+print(tot/len(sim.collisions))
 
 # sim.advance()

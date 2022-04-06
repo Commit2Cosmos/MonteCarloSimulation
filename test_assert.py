@@ -4,7 +4,7 @@ from Simulation import Simulation
 # import numpy as np
 # import pytest
 
-sim = Simulation(2, 0.5)
+sim = Simulation(2, 2)
 sim.meanFP = 1
 
 p1 = sim.particles[0]
@@ -27,6 +27,18 @@ def wallCollisionTest():
                 sim.eulerCromer()
                 sim.wallCollision()
 
+        print(round(p1.positionX,4))
+        return round(p1.positionX,4), p1.velocityX
+
+
+def newWallCollisionTestReplicate():
+        p1.positionX, p1.positionY, p1.velocityX, p1.velocityY, p1.radius = 0.3, 0, 1, 0.001, 0
+        p2.positionX, p2.positionY, p2.velocityX, p2.velocityY = 0, 0, 0.1, 0.1
+
+        for i in range(1):
+                sim.newWallCollision()
+
+        print(round(p1.positionX,1))
         return round(p1.positionX,4), p1.velocityX
 
 
@@ -68,10 +80,10 @@ def headOnCollisionTest():
         return p1.positionX, p1.velocityX, p2.positionX, p2.velocityX
 
 
+newWallCollisionTestReplicate()
 
 
-
-def test_all():
-        assert wallCollisionTest() == (0.3, -1)
-        assert newWallCollisionTest() == (0.8, -0.9, -1, 1)
-        assert headOnCollisionTest() == (-2, -1, 2, 1)
+# def test_all():
+#         assert wallCollisionTest() == (0.3, -1)
+        # assert newWallCollisionTest() == (0.8, -0.9, -1, 1)
+#         assert headOnCollisionTest() == (-2, -1, 2, 1)

@@ -8,7 +8,7 @@ from Particles import Particle
 
 class Simulation():
     # check maxRS value 1347
-    def __init__(self, N = 2, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=293, factor=2):
+    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=293, factor=2):
 
         self.N, self.dt, self.p, self.maxRS, self.time, self.T, self.factor = N, dt, p, maxRS, time, T, factor
 
@@ -270,7 +270,7 @@ class Simulation():
             vy = i.velocityY - j.velocityY
             relSpeed = np.sqrt(vx**2 + vy**2)
             ratio = relSpeed/self.maxRS
-            print(ratio)
+            # print(ratio)
 
             # resets the maximum probability value if a higher one was encountered
             if ratio > 1:
@@ -287,7 +287,7 @@ class Simulation():
 
                 self.velocityCalculation(vx,vy,rx,ry,i,j)
         self.collisions.append(count)
-        print('collisions detected: ' + str(count))
+        # print('collisions detected: ' + str(count))
 
 
 

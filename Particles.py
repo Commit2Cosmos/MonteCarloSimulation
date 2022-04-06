@@ -1,6 +1,6 @@
 import numpy as np
 # Fixing random state for reproducibility
-np.random.seed(8)
+np.random.seed(6)
 
 
 # all particles will be instances of the Particle class with default properties
