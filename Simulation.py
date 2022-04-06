@@ -8,7 +8,7 @@ from Particles import Particle
 
 class Simulation():
     # check maxRS value 1347
-    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=293, factor=2):
+    def __init__(self, N = 2, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=293, factor=2):
 
         self.N, self.dt, self.p, self.maxRS, self.time, self.T, self.factor = N, dt, p, maxRS, time, T, factor
 
@@ -106,7 +106,7 @@ class Simulation():
 
 
     def newWallCollision(self):
-        """Detects and resolves a particle/wall collision ......
+        """Detect and resolve a particle/wall collision; does not allow the particle to cross the border of the box
         """
         wallsVectors = [[0,1],[-1,0],[0,-1],[1,0]]
         midWall = [1, 1, -1, -1]

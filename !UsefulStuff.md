@@ -35,24 +35,7 @@ Using parameters like collision cross section check if there's a collision betwe
 If yes => compute collision classically
 
 
-
-Checks:
-
-Total Energy (Temperature)
-MB distribution
-Pressure ?
-
-
-
-Provide diagnostics at the start of the simulation
-
-
 Introduce seeds for reproducibility
-Use config files to use specific funcs
-
-
-\sigma * c_r is P(collision per time per number density)
-* number density * time => P(collision)
 
 F_N = statistical weight (# of real per simulated) (collection/blob)
 
@@ -71,6 +54,6 @@ Global tests:
 
 -Collision frequency matching
 -Constant Energy, check theory vs actual: temperature, rms & average speed
--Evolution of speed distribution w temperature (with various initial conditions)
+-Evolution of speed distribution w temperature (with various initial conditions) (check for MB distribution)
 -Whether speed distribution matches values of rms, mean and most probable speeds
 -How the number of areas alters accuracy [How big is the box? i.e. cannot be greater than some limit, as not realistic for particles to interact at such distance => split to more squares?]
