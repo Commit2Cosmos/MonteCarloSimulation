@@ -290,6 +290,13 @@ class Simulation():
         print('collisions detected: ' + str(count))
 
 
+        def indexIntoCells(self):
+            cellMatrix = np.zeros((self.factor, self.factor))
+            
+
+# [0][0] =>   -mfp -> 0
+# [0][1] =>   0 -> mfp
+
 
 
 
