@@ -53,7 +53,10 @@ ToDo:
 Global tests:
 
 -Collision frequency matching
--Constant Energy, check theory vs actual: temperature, rms & average speed
--Evolution of speed distribution w temperature (with various initial conditions) (check for MB distribution)
--Whether speed distribution matches values of rms, mean and most probable speeds
+-Constant Energy
+-Check theory vs actual: temperature, rms & average speed
+-Evolution of speed distribution w temperature (with various initial conditions) (check for MB distribution) & whether speed distribution matches values of rms, mean and most probable speeds
+
+
+Improve:
 -How the number of areas alters accuracy [How big is the box? i.e. cannot be greater than some limit, as not realistic for particles to interact at such distance => split to more squares?]

@@ -8,7 +8,7 @@ from Particles import Particle
 
 class Simulation():
     # check maxRS value 1347
-    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=293, factor=2):
+    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=50, factor=2):
 
         self.N, self.dt, self.p, self.maxRS, self.time, self.T, self.factor = N, dt, p, maxRS, time, T, factor
 
@@ -27,9 +27,11 @@ class Simulation():
         self.pairs = self.numberOfPairs()
 
         self.uniformPosition()
+        # self.uniformVelocity()
         self.normalVelocity()
 
         self.collisions = []
+        # self.ener = []
 
 
 
@@ -39,7 +41,11 @@ class Simulation():
 
     def uniformVelocity(self):
         for i in self.particles:
-            i.velocityX, i.velocityY = self.maxRS * (np.random.rand(1,2)[0]-0.5)
+            if np.random.rand(1,1)[0] < 0.5:
+                pm = 1
+            else:
+                pm = -1
+            i.velocityX, i.velocityY = pm * 200*np.sqrt(2), pm * 200*np.sqrt(2)
 
     def normalVelocity(self):
         for i in self.particles:
@@ -176,7 +182,8 @@ class Simulation():
                 i.positionY += i.velocityY * t
                 i.positionX += i.velocityX * t
 
-##### PARTICLE COLLISION MANAGEMANT ##############################################
+
+##### PARTICLE COLLISION MANAGEMENT ##############################################
 
     def particleCollisionClassical(self):
         """Check for and resolve a classical two particle collision (ignores > 2 particles collisions in one timestep)
@@ -342,7 +349,6 @@ class Simulation():
 
 
 
-
 ##### CALCULATE PROPERTIES OF SIMULATION #############################
 
     def calculateMeanSpeed(self):
@@ -397,14 +403,35 @@ class Simulation():
 
 		    :return: Total energy of the system [J]
 	    """
-        E = 1/2 * self.particles[0].mass * self.calculateMeanSpeed()**2
-        # print('E: ' + str(E))
+        E = 1/2 * self.particles[0].mass * self.FN * self.calculateMeanSpeed()**2
+        print('E: ' + str(E))
+        self.ener.append(E)
         return E
 
 
 # initialise the object
-simulation = Simulation()
+# simulation = Simulation()
 
-simulation.calculateMeanSpeed()
+# print(simulation.getSpeeds())
+
+# simulation.calculateTotalEnergy()
+# simulation.calculateTemperature()
+
+# for i in range(10):
+#     simulation.advance()
+
+# simulation.calculateTotalEnergy()
+
+# for i in range(1000):
+#     simulation.advance()
+
+# simulation.calculateTotalEnergy()
+
+# tot = 0
+# for i in simulation.ener:
+#     tot += i
+# print('meanE: ' + str(tot/len(simulation.ener)))
+
+# simulation.calculateMeanSpeed()
 # simulation.calculateRMSSquared()
-simulation.calculateTemperature()
+# simulation.calculateTemperature()

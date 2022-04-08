@@ -26,8 +26,8 @@ def rmsSpeed():
 
         :return: Root-mean-square particle speed (m/s)
     """
-    rmsSpeed = np.sqrt((2 * const.k * T)/(m))
-    # print('rmsSpeed: ' + str(rmsSpeed))
+    rmsSpeed = np.sqrt((2 * const.k * T)/m)
+    print('rmsSpeed: ' + str(rmsSpeed))
     return rmsSpeed
 
 
@@ -39,7 +39,7 @@ def mostProbableSpeed():
         :return: Most probable particle speed (m/s)
     """
     probSpeed = np.sqrt((const.k * T)/m)
-    # print('probSpeed: ' + str(probSpeed))
+    print('probSpeed: ' + str(probSpeed))
     return probSpeed
 
 
@@ -51,7 +51,7 @@ def meanSpeed():
         :return: Mean particle speed (m/s)
     """
     meanSpeed = np.sqrt((const.k * T * const.pi)/(2 * m))
-    # print('meanSpeed: ' + str(meanSpeed))
+    print('meanSpeed: ' + str(meanSpeed))
     return meanSpeed
 
 
@@ -79,8 +79,26 @@ def totalCollisionNumber():
     return colNum
 
 
-print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * volume / FN))
+def totalEnergy():
+        """Calculate the total energy of the system from the mean speed value
 
+	    Args:
+
+		    :return: Total energy of the system [J]
+	    """
+        E = 1/2 * m * FN * meanSpeed()**2
+        print('E: ' + str(E))
+        return E
+
+
+# totalEnergy()
+
+
+
+
+# print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * volume / FN))
+
+# mostProbableSpeed()
 # meanSpeed()
 # rmsSpeed()
 
@@ -89,12 +107,12 @@ print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * volume / FN))
 # print(meanSpeed() * np.sqrt(2) * 2)
 
 
-for i in range(1000):
-    sim.advance()
+# for i in range(1000):
+#     sim.advance()
 
-tot = 0
-for i in sim.collisions:
-    tot += i
-print(tot/len(sim.collisions))
+# tot = 0
+# for i in sim.collisions:
+#     tot += i
+# print(tot/len(sim.collisions))
 
 # sim.advance()
