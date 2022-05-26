@@ -96,7 +96,7 @@ def totalEnergy():
 
 
 
-# print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * volume / FN))
+print('totalCollisionNumber: ' + str(totalCollisionNumber() * dt * volume / FN))
 
 # mostProbableSpeed()
 # meanSpeed()
@@ -107,12 +107,12 @@ def totalEnergy():
 # print(meanSpeed() * np.sqrt(2) * 2)
 
 
-# for i in range(1000):
-#     sim.advance()
+for i in range(100):
+    sim.advance()
 
-# tot = 0
-# for i in sim.collisions:
-#     tot += i
-# print(tot/len(sim.collisions))
+tot = 0
+for i in sim.collisions:
+    tot += i
+print(tot/len(sim.collisions))
 
 # sim.advance()
