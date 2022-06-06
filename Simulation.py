@@ -8,7 +8,7 @@ from Particles import Particle
 
 class Simulation():
     # check maxRS value 1347
-    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 1800, time = 0., T=283, factor=2):
+    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 10, time = 0., T=283, factor=2):
 
         self.N, self.dt, self.p, self.maxRS, self.time, self.T, self.factor = N, dt, p, maxRS, time, T, factor
 
@@ -285,6 +285,7 @@ class Simulation():
                 print('!!new maxRS!!: ' + str(self.maxRS))
                 self.pairs = self.numberOfPairs()
 
+
             # resolves the collision classically if the ratio of current and maximum collision probabilities is greater than a random number between 0 and 1
             if ratio > np.random.random(1)[0]:
                 rx = i.positionX - j.positionX
@@ -294,11 +295,11 @@ class Simulation():
 
                 self.velocityCalculation(vx,vy,rx,ry,i,j)
         self.collisions.append(count)
-        # print('collisions detected: ' + str(count))
+        print('collisions detected: ' + str(count))
 
 
-        def indexIntoCells(self):
-            cellMatrix = np.zeros((self.factor, self.factor))
+        # def indexIntoCells(self):
+        #     cellMatrix = np.zeros((self.factor, self.factor))
             
 
 # [0][0] =>   -mfp -> 0
@@ -417,15 +418,15 @@ class Simulation():
 
 
 # initialise the object
-# simulation = Simulation()
+simulation = Simulation()
 
 # print(simulation.getSpeeds())
 
 # simulation.calculateTotalEnergy()
 # simulation.calculateTemperature()
 
-# for i in range(10):
-#     simulation.advance()
+for i in range(1000):
+    simulation.advance()
 
 # simulation.calculateTotalEnergy()
 
