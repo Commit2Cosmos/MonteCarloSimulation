@@ -14,7 +14,7 @@ lim = 1/2 * simulation.factor * simulation.meanFP
 
 fig, (ax, ax2) = plt.subplots(1,2, gridspec_kw={'width_ratios': [1, 7]})
 
-vs = np.linspace(0, 870, 40)
+vs = np.linspace(0, 1500, 40)
 
 scatter = ax.scatter([],[], s=4)
 bar = ax2.bar(vs, [0]*len(vs), width=0.9 * np.gradient(vs), align="edge")
@@ -26,7 +26,7 @@ def initial():
     ax.axis('off')
 
     ax2.set_xlim(vs[0],vs[-1])
-    ax2.set_ylim(0, simulation.N)
+    ax2.set_ylim(0, simulation.N/8)
 
     ax2.set_title('Distribution of speeds for Nitrogen gas')
 

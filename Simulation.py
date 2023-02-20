@@ -8,7 +8,7 @@ from Particles import Particle
 
 class Simulation():
     # check maxRS value 1347
-    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 10, time = 0., T=283, factor=2):
+    def __init__(self, N = 1000, dt = 1E-10, p = 1E5, maxRS = 10, time = 0., T=1000, factor=2):
 
         self.N, self.dt, self.p, self.maxRS, self.time, self.T, self.factor = N, dt, p, maxRS, time, T, factor
 
@@ -30,7 +30,7 @@ class Simulation():
         # self.uniformVelocity()
         self.normalVelocity()
 
-        self.collisions = []
+        # self.collisions = []
         # self.ener = []
 
 
@@ -247,7 +247,7 @@ class Simulation():
             :return: Collision pairs number
 	    """
         nP = (1/2 * self.N * (self.N - 1) * self.FN * (self.maxRS * self.sigma) * self.dt) / self.volume
-        print('pairs: ' + str(nP))
+        # print('pairs: ' + str(nP))
         return nP
 
 
@@ -268,7 +268,7 @@ class Simulation():
     def particleCollisionMC(self):
         """Implementation of the Monte-Carlo method based on acceptance/rejection procedure
 	    """
-        count = 0
+        # count = 0
         for dummy in range(int(self.pairs)):
             first, second = self.chooseRandomParticles()
             i, j = self.particles[first], self.particles[second]
@@ -282,7 +282,7 @@ class Simulation():
             # resets the maximum probability value if a higher one was encountered
             if ratio > 1:
                 self.maxRS = relSpeed
-                print('!!new maxRS!!: ' + str(self.maxRS))
+                # print('!!new maxRS!!: ' + str(self.maxRS))
                 self.pairs = self.numberOfPairs()
 
 
@@ -291,11 +291,11 @@ class Simulation():
                 rx = i.positionX - j.positionX
                 ry = i.positionY - j.positionY
                 # print('!collision!')
-                count += 1
+                # count += 1
 
                 self.velocityCalculation(vx,vy,rx,ry,i,j)
-        self.collisions.append(count)
-        print('collisions detected: ' + str(count))
+        # self.collisions.append(count)
+        # print('collisions detected: ' + str(count))
 
 
         # def indexIntoCells(self):
@@ -418,15 +418,15 @@ class Simulation():
 
 
 # initialise the object
-simulation = Simulation()
+# simulation = Simulation()
 
 # print(simulation.getSpeeds())
 
 # simulation.calculateTotalEnergy()
 # simulation.calculateTemperature()
 
-for i in range(1000):
-    simulation.advance()
+# for i in range(1000):
+#     simulation.advance()
 
 # simulation.calculateTotalEnergy()
 
