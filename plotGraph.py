@@ -36,9 +36,9 @@ def initial():
     return (scatter, *bar.patches)
 
 
-def render(i):
+def render(_):
 
-    freq, bins = np.histogram(simulation.getSpeeds(), bins=vs)
+    freq, _ = np.histogram(simulation.getSpeeds(), bins=vs)
 
     for rect, height in zip(bar.patches,freq):
         rect.set_height(height)
@@ -51,5 +51,6 @@ def render(i):
     return (scatter, *bar.patches)
 
 
-anim = FuncAnimation(fig, render, init_func=initial, interval=1000, frames=range(120), blit = True, repeat = True)
-plt.show()
+if __name__ == "__main__":
+    anim = FuncAnimation(fig, render, init_func=initial, interval=1000, frames=range(120), blit = True, repeat = True)
+    plt.show()
